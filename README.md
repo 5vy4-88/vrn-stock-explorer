@@ -4,14 +4,14 @@ A single-file, offline dashboard for the westernreg.co.uk October 2026 number-pl
 (287 rows: 279 priced + 8 "new stock" banner entries, verified against the PDF).
 
 ## Quick start
-1. Unzip, then open `vrn_dashboard.html` in any modern browser (Chrome, Edge, Firefox, Safari; desktop, tablet or phone).
-2. No install, server or internet connection is needed. There are no external requests.
+1. Open the live page: https://5vy4-88.github.io/vrn-stock-explorer/ (needs GitHub Pages switched on: Settings > Pages > Deploy from a branch > `main` / root).
+2. Or download `index.html` and open it in any modern browser (Chrome, Edge, Firefox, Safari; desktop, tablet or phone). It works offline and makes no external requests.
 3. Your shortlist, saved views and theme are stored in the browser's local storage. If storage is blocked the page still works, it just will not remember anything.
 
 ## What is inside
 | Path | Purpose |
 |---|---|
-| `vrn_dashboard.html` | The dashboard (data embedded) |
+| `index.html` | The dashboard (data embedded) |
 | `data/stock_vrns_verified.csv` / `.xlsx` | The verified table (No., VRN, price, part, VAT, source block, format) |
 | `data/stock.pdf` | Original source PDF |
 | `tools/extract_vrns.py` | Re-extracts the table from the PDF (pdfplumber) |
@@ -36,4 +36,4 @@ A single-file, offline dashboard for the westernreg.co.uk October 2026 number-pl
 ## Test summary (final build)
 1017 of 1017 automated checks passed across 21 device profiles (phones, tablets, desktop, landscape) in Chromium. Checks cover filters, name matching, pills, pagination, sorting, ranking, selection, shortlist, comparison, statistics, histogram, theme, persistence, CSV/JSON/Excel downloads, print output, saved views, links and blocked-storage fallback. Contrast ratios are at least 5.0:1 in all four theme paths. Not tested: Firefox and WebKit engines, real devices, and screen-reader behaviour.
 
-To re-run: `pip install playwright openpyxl && playwright install chromium`, then `python tests/suite.py "iPhone 12" 1 .` (device name, heavy-tests flag, output folder).
+To re-run: `pip install playwright openpyxl && playwright install chromium`, then `python tests/suite.py "iPhone 12" 1 .` (device name, heavy-tests flag, output folder). The suite expects `index.html` one level above `tests/`.
