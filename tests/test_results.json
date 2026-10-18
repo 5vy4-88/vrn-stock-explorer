@@ -1,0 +1,177 @@
+{
+ "run_date": "2026-10-18",
+ "engine": "Chromium 134 (Playwright) with device emulation",
+ "note": "Firefox and WebKit engines were not available in the test environment; devices are emulated by viewport, touch, pixel ratio and user agent.",
+ "devices": [
+  {
+   "device": "Galaxy S8",
+   "width": 360,
+   "pass": 46,
+   "total": 46,
+   "heavy": false,
+   "fails": []
+  },
+  {
+   "device": "Galaxy S9+",
+   "width": 320,
+   "pass": 46,
+   "total": 46,
+   "heavy": false,
+   "fails": []
+  },
+  {
+   "device": "Galaxy Tab S4",
+   "width": 712,
+   "pass": 44,
+   "total": 44,
+   "heavy": false,
+   "fails": []
+  },
+  {
+   "device": "LPixel 7",
+   "width": 839,
+   "pass": 44,
+   "total": 44,
+   "heavy": false,
+   "fails": []
+  },
+  {
+   "device": "LiPad Mini",
+   "width": 1024,
+   "pass": 44,
+   "total": 44,
+   "heavy": false,
+   "fails": []
+  },
+  {
+   "device": "LiPhone 12",
+   "width": 664,
+   "pass": 46,
+   "total": 46,
+   "heavy": false,
+   "fails": []
+  },
+  {
+   "device": "Nexus 5",
+   "width": 360,
+   "pass": 46,
+   "total": 46,
+   "heavy": false,
+   "fails": []
+  },
+  {
+   "device": "Pixel 5",
+   "width": 393,
+   "pass": 46,
+   "total": 46,
+   "heavy": false,
+   "fails": []
+  },
+  {
+   "device": "Pixel 7",
+   "width": 412,
+   "pass": 59,
+   "total": 59,
+   "heavy": true,
+   "fails": []
+  },
+  {
+   "device": "W1024x768",
+   "width": 1024,
+   "pass": 45,
+   "total": 45,
+   "heavy": false,
+   "fails": []
+  },
+  {
+   "device": "W1280x800",
+   "width": 1280,
+   "pass": 58,
+   "total": 58,
+   "heavy": true,
+   "fails": []
+  },
+  {
+   "device": "W1920x1080",
+   "width": 1920,
+   "pass": 45,
+   "total": 45,
+   "heavy": false,
+   "fails": []
+  },
+  {
+   "device": "W320x568",
+   "width": 320,
+   "pass": 47,
+   "total": 47,
+   "heavy": false,
+   "fails": []
+  },
+  {
+   "device": "iPad Mini",
+   "width": 768,
+   "pass": 57,
+   "total": 57,
+   "heavy": true,
+   "fails": []
+  },
+  {
+   "device": "iPad Pro 11",
+   "width": 834,
+   "pass": 44,
+   "total": 44,
+   "heavy": false,
+   "fails": []
+  },
+  {
+   "device": "iPad (gen 7)",
+   "width": 810,
+   "pass": 44,
+   "total": 44,
+   "heavy": false,
+   "fails": []
+  },
+  {
+   "device": "iPhone 12",
+   "width": 390,
+   "pass": 46,
+   "total": 46,
+   "heavy": false,
+   "fails": []
+  },
+  {
+   "device": "iPhone 12 Mini",
+   "width": 375,
+   "pass": 46,
+   "total": 46,
+   "heavy": false,
+   "fails": []
+  },
+  {
+   "device": "iPhone 14 Pro Max",
+   "width": 430,
+   "pass": 59,
+   "total": 59,
+   "heavy": true,
+   "fails": []
+  },
+  {
+   "device": "iPhone 15 Pro Max",
+   "width": 430,
+   "pass": 46,
+   "total": 46,
+   "heavy": false,
+   "fails": []
+  },
+  {
+   "device": "iPhone SE",
+   "width": 320,
+   "pass": 59,
+   "total": 59,
+   "heavy": true,
+   "fails": []
+  }
+ ],
+ "total_checks": 1017,
+ "passed": 1017
+}
