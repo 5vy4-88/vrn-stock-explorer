@@ -1,0 +1,752 @@
+<!DOCTYPE html><html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>VRN Stock Explorer – October 2026</title>
+<style>
+:root{--bg:#f4f5f7;--card:#fff;--ink:#1c2330;--mut:#596273;--acc:#0b5fff;--accfg:#fff;--gold:#b45309;--red:#be123c;--line:#e3e6eb;--hi:#eaf1ff;--good:#dff5e3;color-scheme:light}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0f1218;--card:#1a1f29;--ink:#e8ebf0;--mut:#9aa4b2;--acc:#4c8dff;--accfg:#0b1220;--gold:#fbbf24;--red:#ff7a90;--line:#2b3240;--hi:#1f2c47;--good:#17361f;color-scheme:dark}}
+:root[data-theme=dark]{--bg:#0f1218;--card:#1a1f29;--ink:#e8ebf0;--mut:#9aa4b2;--acc:#4c8dff;--accfg:#0b1220;--gold:#fbbf24;--red:#ff7a90;--line:#2b3240;--hi:#1f2c47;--good:#17361f;color-scheme:dark}
+:root[data-theme=light]{color-scheme:light}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}body{margin:0;font:14px/1.45 system-ui,sans-serif;background:var(--bg);color:var(--ink);transition:background .2s,color .2s;overflow-x:hidden}
+header{padding:16px 24px;display:flex;gap:16px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap}h1{margin:0;font-size:20px}header p{margin:2px 0 0;color:var(--mut);max-width:780px}
+#theme{width:auto;white-space:nowrap}
+.wrap{padding:0 24px 40px;display:grid;gap:16px;min-width:0}.wrap>*{min-width:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.kpi b{display:block;font-size:20px}.kpi span{color:var(--mut);font-size:12px}
+.filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;align-items:end}
+h3{margin:0 0 8px;font-size:14px}
+label{display:block;font-size:12px;color:var(--mut);margin-bottom:3px}
+input,select,button{width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink);font:inherit}
+input[type=checkbox]{width:auto;padding:0;accent-color:var(--acc);cursor:pointer;transform:scale(1.15)}
+input[type=range]{padding:0;accent-color:var(--acc)}
+button{cursor:pointer;background:var(--acc);color:var(--accfg);border:0}button.sec{background:transparent;color:var(--ink);border:1px solid var(--line)}
+button.sec:hover{background:var(--hi)}
+button:disabled{opacity:.45;cursor:not-allowed}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.bar{display:flex;align-items:center;gap:6px;margin:3px 0;font-size:12px;cursor:pointer}
+.bar i{display:block;height:14px;background:var(--acc);border-radius:3px;min-width:2px}.bar .l{width:92px;color:var(--mut);text-align:right;flex:none}
+.bar.on i{background:var(--gold)}
+table{width:100%;border-collapse:collapse}th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left}
+th{cursor:pointer;position:sticky;top:0;background:var(--card);user-select:none;z-index:1;white-space:nowrap}td.r,th.r{text-align:right}
+th.nos{cursor:default}
+tr.sel td{background:var(--hi)}
+.plate{display:inline-block;font:700 15px/1 ui-monospace,Menlo,monospace;background:#ffd800;color:#111;border:2px solid #111;border-radius:5px;padding:4px 9px;letter-spacing:1px;white-space:nowrap}
+.plate mark{background:#ff5a36;color:#fff;border-radius:2px;padding:0 1px}
+.tag{font-size:11px;padding:1px 7px;border-radius:99px;border:1px solid var(--line);color:var(--mut);display:inline-block;margin:1px}
+.chip{font-size:12px;padding:2px 9px;border-radius:99px;border:1px solid var(--line);cursor:pointer;display:inline-block;margin:2px;background:var(--card)}
+.chip:hover,.chip.on{background:var(--acc);color:var(--accfg);border-color:var(--acc)}
+.pill{width:auto;display:inline-flex;gap:6px;align-items:center;padding:5px 13px;border-radius:99px;background:var(--card);color:var(--ink);border:1px solid var(--line);font-size:13px;margin:0;white-space:nowrap}
+.pill:hover{background:var(--hi)}.pill.on{background:var(--acc);color:var(--accfg);border-color:var(--acc)}.pill small{opacity:.75;font-size:11px}
+.pills{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.pills .lbl{font-size:12px;color:var(--mut);margin-right:2px;white-space:nowrap}
+.scroll{max-height:560px;overflow:auto}
+.pager{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.pager button{width:auto;min-width:34px;padding:5px 9px}.pager button.cur{background:var(--acc);color:var(--accfg);border-color:var(--acc)}.pager .dots{color:var(--mut);padding:0 2px}
+.pager .info{color:var(--mut);font-size:12px;margin-right:8px}
+.pgb{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-top:10px}
+.pgb .go{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--mut)}.pgb .go input{width:70px}.pgb .go select{width:auto}.pgb .go button{width:auto}
+.fav{cursor:pointer;color:var(--mut);font-size:16px}.fav.on{color:var(--gold)}
+.hint{font-size:12px;color:var(--mut);margin-top:8px}
+#hsvg{width:100%;height:auto;display:block;user-select:none;touch-action:pan-y}
+#hsvg .b{fill:var(--acc);cursor:pointer}#hsvg .b:hover{opacity:.8}#hsvg .b.sel{fill:var(--gold)}#hsvg .b.drag{fill:var(--gold);opacity:.6}
+#hsvg text{fill:var(--mut);font-size:11px}#hsvg .v{fill:var(--ink)}#hsvg line{stroke:var(--line)}#hsvg .med{stroke:var(--red);stroke-dasharray:4 3}
+.hrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:10px}
+.exp{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-top:10px}
+.bulk{position:sticky;top:0;z-index:5;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.brow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.brow button{width:auto}.brow .sp{flex:1}
+.stgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:10px;margin:10px 0}
+.stgrid div{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px}.stgrid b{display:block;font-size:16px}.stgrid span{font-size:11px;color:var(--mut)}
+.st2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(340px,100%),1fr));gap:16px}
+.st2 table{font-size:12px}.cost{margin-top:10px;padding:10px;border:1px dashed var(--line);border-radius:8px}
+.cmp{overflow:auto;max-height:640px;margin-top:10px}.cmp table{min-width:100%}.cmp th{cursor:default;position:static}
+.cmp td.best,.cmp td.best b{background:var(--good);font-weight:600}.cmp th.rl{position:sticky;left:0;background:var(--card);z-index:2;color:var(--mut);font-weight:500}
+.cmp td{min-width:110px;vertical-align:middle}
+.w{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-top:10px}.w span{font-size:11px;color:var(--mut)}
+.hid{display:none}
+.vlist{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center}
+.msort{display:none;gap:8px;margin-bottom:10px}.msort select{flex:1}.msort button{width:auto}
+#totop{display:none;position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom));width:46px;height:46px;border-radius:50%;z-index:8;box-shadow:0 2px 8px rgba(0,0,0,.35);padding:0;font-size:20px}
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:8px 14px;border-radius:8px;opacity:0;transition:.2s;pointer-events:none;z-index:9}
+#toast.on{opacity:.95}
+#print{display:none}
+@media(max-width:900px){.wrap{padding:0 14px 32px}header{padding:14px}.grid2{grid-template-columns:1fr}}
+@media(max-width:700px){
+ body{font-size:15px}
+ .wrap{padding:0 10px 90px;gap:12px}.card{padding:12px;border-radius:12px}
+ header{padding:12px 10px;align-items:center}header p{font-size:12px}h1{font-size:18px}
+ #theme{padding:6px 10px;min-height:38px}
+ input,select,button{font-size:16px;min-height:42px}
+ input[type=checkbox]{min-height:0;transform:scale(1.35)}
+ input[type=range]{min-height:30px}
+ .filters{grid-template-columns:1fr 1fr}
+ .kpis{grid-template-columns:repeat(3,1fr);gap:8px}.kpi b{font-size:16px}
+ .pills{flex-wrap:nowrap;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch;scrollbar-width:thin}.pill{flex:none;min-height:38px}
+ .hrow,.w,.exp{grid-template-columns:1fr 1fr}
+ .brow{gap:6px}.brow .sp{display:none}.brow b,.brow span{flex:1 1 100%}.brow button{flex:1 1 44%;min-height:40px;font-size:14px}
+ .bulk{position:static;box-shadow:none}
+ .stgrid{grid-template-columns:repeat(2,1fr)}
+ .cmp{max-height:480px}.cmp td{min-width:96px}
+ .msort{display:flex}
+ .vlist button{flex:1 1 44%}
+ .pager{justify-content:center}.pager .info{width:100%;text-align:center;margin:0 0 2px}.pager button.num{display:none}.pager button.num.cur{display:inline-block}.pager .dots{display:none}.pager .lg{display:none}
+ .pgb{flex-direction:column;align-items:stretch}.pgb .go{justify-content:center;flex-wrap:wrap}.pgb .go input{width:80px}
+ .scroll{max-height:none;overflow:visible}
+ table.rt,table.rt tbody{display:block}table.rt thead{display:none}
+ table.rt tr{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:10px;margin:0 0 10px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+ table.rt tr.sel{background:var(--hi)}
+ table.rt td{display:block;border:0;padding:0;background:none!important;width:auto;text-align:left}
+ table.rt td.c-sel{order:1}table.rt td.c-plate{order:2;flex:1 1 auto}table.rt td.c-fav{order:3;font-size:22px}
+ table.rt td.c-price{order:4;font-weight:700;font-size:17px;flex:1 1 40%}table.rt td.c-rank{order:5;margin-left:auto;text-align:right}
+ table.rt td.c-meta{order:6;font-size:12px;color:var(--mut)}table.rt td.c-meta::before{content:attr(data-l) ": ";opacity:.8}
+ table.rt td.c-words{order:7;flex-basis:100%}table.rt td.c-words:empty{display:none}
+ table.rt td.c-n{order:8;font-size:11px;color:var(--mut)}table.rt td.c-n::before{content:"#"}
+ table.rt td.c-empty{flex-basis:100%}
+ #totop{display:block}
+ .fold>h3{cursor:pointer;display:flex;justify-content:space-between;align-items:center;margin:0;min-height:30px}.fold>h3::after{content:"▾";color:var(--mut)}
+ .fold.collapsed>h3::after{content:"▸"}.fold.collapsed>*:not(h3){display:none}.fold:not(.collapsed)>h3{margin-bottom:10px}
+ #toast{bottom:calc(72px + env(safe-area-inset-bottom));max-width:90vw;text-align:center}
+}
+@media(max-width:420px){.filters{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}.hrow,.w,.exp{grid-template-columns:1fr}.bar .l{width:70px}}
+@media (pointer:coarse) and (min-width:701px){button,select,input:not([type=checkbox]):not([type=range]){min-height:40px}.pill{min-height:40px}}
+@media print{:root{--bg:#fff;--card:#fff;--ink:#000;--mut:#444;--line:#999}body{background:#fff;color:#000}.wrap,header,#totop{display:none}#print{display:block;padding:0 12px}#print table{font-size:11px}#print th,#print td{padding:3px 6px;border-bottom:1px solid #999}
+ #print h2{margin:8px 0 2px}#print .meta{font-size:11px;margin-bottom:8px}}
+</style></head><body>
+<header><div><h1>VRN Stock Explorer</h1><p>westernreg.co.uk stock list, October 2026 · prices in £, mostly + VAT, plus £80 transfer fee and plates · 279 priced entries verified against the PDF</p></div><button class="sec" id="theme" title="Cycle Auto → Light → Dark">Theme: Auto</button></header>
+<div class="wrap">
+<div class="card kpis" id="kpis" aria-live="polite"></div>
+
+<div class="card fold"><h3>Saved views</h3>
+<div class="filters">
+<div><label>Name this view</label><input id="vname" placeholder="e.g. Cheap names under £500"></div>
+<div><label>&nbsp;</label><button id="v-save">Save current view</button></div>
+<div><label>Saved views</label><select id="vlist"><option value="">— none saved —</option></select></div>
+<div><label>&nbsp;</label><button class="sec" id="v-load">Load</button></div>
+<div><label>&nbsp;</label><button class="sec" id="v-del">Delete</button></div>
+</div>
+<div class="vlist"><button class="sec" id="v-link" style="width:auto">Copy shareable link</button><button class="sec" id="v-exp" style="width:auto">Export views (JSON)</button><button class="sec" id="v-imp" style="width:auto">Import views…</button><input type="file" id="v-file" accept="application/json,.json" class="hid">
+<label style="display:flex;gap:6px;align-items:center;margin:0;font-size:12px"><input type="checkbox" id="v-auto"> Reopen where I left off</label></div>
+<div class="hint" id="vinfo"></div></div>
+
+<div class="card"><div class="filters">
+<div><label>Search VRN (spaces ignored)</label><input id="q" placeholder="e.g. WIG, 812, E33" autocomplete="off"></div>
+<div><label>Pattern (regex, optional)</label><input id="rx" placeholder="e.g. ^[A-Z]{3} \d{4}$" autocomplete="off" autocapitalize="off"></div>
+<div><label>Part</label><select id="part"><option value="">All</option><option>Part 1</option><option>Part 2</option></select></div>
+<div><label>Min price £</label><input id="pmin" type="number" min="0" inputmode="numeric"></div>
+<div><label>Max price £</label><input id="pmax" type="number" min="0" inputmode="numeric"></div>
+<div><label>Characters (excl. space)</label><select id="len"><option value="">Any</option></select></div>
+<div><label>VAT treatment</label><select id="vat"><option value="0">Show as listed</option><option value="1">Add 20% VAT to Part 1</option></select></div>
+<div><label>Show</label><select id="show"><option value="">All</option><option value="priced">Priced only</option><option value="new">New-stock banner entries</option><option value="fav">Shortlist only</option><option value="sel">Selected only</option></select></div>
+<div><label>&nbsp;</label><button class="sec" id="reset">Reset filters</button></div>
+</div>
+<div class="pills" style="margin-top:12px" id="tpills"></div>
+<div class="pills" style="margin-top:8px" id="qpills"></div></div>
+
+<div class="card fold"><h3>Name matching</h3><div class="filters">
+<div><label>Name(s) – comma separated, or a full name for initials</label><input id="nm" placeholder="e.g. David, Dave, Williams" autocomplete="off"></div>
+<div><label>Match mode</label><select id="nmode">
+<option value="contains">Contains the name</option><option value="starts">Starts with the name</option><option value="ends">Ends with the name</option>
+<option value="fuzzy1">Near match (1 letter out)</option><option value="fuzzy2">Near match (2 letters out)</option>
+<option value="initc">Initials, together (e.g. DW)</option><option value="inito">Initials, in order, gaps allowed</option>
+<option value="word">Reads as a known name/word</option></select></div>
+<div><label>Digits as look-alike letters</label><select id="dg"><option value="1">On (0=O 1=I 3=E 4=A 5=S 6=G 7=T 8=B 2=Z)</option><option value="0">Off (letters only)</option></select></div>
+<div><label>Plate boundary</label><select id="bd"><option value="0">Anywhere in plate</option><option value="1">Within a letter group (spaces break the match)</option></select></div>
+</div>
+<div style="margin-top:8px"><span class="tag">Quick:</span><span class="chip" data-n="David">David</span><span class="chip" data-n="Dave">Dave</span><span class="chip" data-n="Williams">Williams</span><span class="chip" data-n="Will">Will</span><span class="chip" data-i="David Williams">Initials DW</span></div>
+<div style="margin-top:8px"><b style="font-size:12px">Names/words spotted in current results</b> <span class="tag">click to filter</span><div id="spot"></div></div>
+<div class="hint">Matching ignores spaces by default. Near-match uses edit distance. The spotted-words list uses a built-in dictionary of about 263 common names and short words – a guide, not exhaustive.</div></div>
+
+<div class="card fold"><h3>Sort and rank</h3>
+<div class="filters">
+<div><label>Sort by</label><select id="s1"></select></div>
+<div><label>Direction</label><select id="d1"><option value="1">Ascending (A→Z, low→high)</option><option value="-1">Descending (Z→A, high→low)</option></select></div>
+<div><label>Then by (tie-break)</label><select id="s2"></select></div>
+<div><label>Direction</label><select id="d2"><option value="1">Ascending</option><option value="-1">Descending</option></select></div>
+</div>
+<div style="margin-top:8px"><span class="tag">Quick sort:</span><span class="chip" data-sort="price|1">Cheapest first</span><span class="chip" data-sort="price|-1">Dearest first</span><span class="chip" data-sort="alpha|1">A–Z</span><span class="chip" data-sort="type|1">By type</span><span class="chip" data-sort="len|1">Shortest first</span><span class="chip" data-sort="ppc|1">Lowest £/char</span><span class="chip" data-sort="rank|1">Best rank</span><span class="chip" data-sort="fav|1">Shortlist first</span><span class="chip" data-sort="n|1">Original order</span></div>
+<hr style="border:0;border-top:1px solid var(--line);margin:14px 0">
+<div class="filters">
+<div><label>Rank plates by</label><select id="rkm">
+<option value="price_lo">Price – cheapest = #1</option><option value="price_hi">Price – dearest = #1</option><option value="ppc_lo">Price per character – lowest = #1</option>
+<option value="short">Fewest characters = #1</option><option value="long">Most characters = #1</option><option value="name">Name-match quality – best = #1</option><option value="score">Composite score – highest = #1</option></select></div>
+<div><label>Rank within</label><select id="rks"><option value="view">Current filtered rows</option><option value="all">Whole stock list</option></select></div>
+<div><label>Top N</label><input id="topn" type="number" min="1" value="10" inputmode="numeric"></div>
+<div><label>&nbsp;</label><button class="sec" id="rk-sel">Select top N by rank</button></div>
+<div><label>&nbsp;</label><button class="sec" id="rk-fav">Shortlist top N by rank</button></div>
+</div>
+<div class="w" id="wts">
+<div><label>Cheapness weight: <b id="wv1">5</b></label><input type="range" id="w1" min="0" max="10" value="5"><span>cheaper than most plates scores higher</span></div>
+<div><label>Shortness weight: <b id="wv2">3</b></label><input type="range" id="w2" min="0" max="10" value="3"><span>fewer characters scores higher</span></div>
+<div><label>Name-match weight: <b id="wv3">5</b></label><input type="range" id="w3" min="0" max="10" value="5"><span>uses the name box above</span></div>
+<div><label>Reads-as-word weight: <b id="wv4">2</b></label><input type="range" id="w4" min="0" max="10" value="2"><span>contains a name/word from the dictionary</span></div>
+<div><label>Preferred-format weight: <b id="wv5">0</b></label><input type="range" id="w5" min="0" max="10" value="0"><select id="wf" aria-label="Preferred format"></select></div>
+</div>
+<div class="hint" id="rkinfo"></div></div>
+
+<div class="card fold"><h3>Summary statistics</h3>
+<div class="filters"><div><label>Calculate for</label><select id="ssc"><option value="view">Filtered rows</option><option value="sel">Selected rows</option><option value="fav">Shortlist</option></select></div>
+<div><label>&nbsp;</label><button class="sec" id="stcopy">Copy statistics</button></div></div>
+<div class="stgrid" id="stk"></div>
+<div class="st2"><div style="overflow-x:auto"><b>By part</b><table id="stp"></table></div><div style="overflow-x:auto"><b>By format</b><table id="stf"></table></div></div>
+<div class="cost" id="stc"></div></div>
+
+<div class="card fold"><h3>Compare plates</h3>
+<div class="filters"><div><label>Compare</label><select id="cscope"><option value="fav">Shortlisted plates</option><option value="sel">Selected rows</option></select></div>
+<div><label>Layout</label><select id="clay"><option value="cols">Plates as columns</option><option value="rows">Plates as rows</option></select></div>
+<div><label>&nbsp;</label><button class="sec" id="ccopy">Copy comparison</button></div></div>
+<div class="cmp" id="cmp"></div>
+<div class="hint">Green cells mark the best value in each row (lowest cost, highest score and so on). “Rank” rows use the ranking method set in Sort and rank.</div></div>
+
+<div class="card fold"><h3>Price histogram</h3>
+<div class="hrow">
+<div><label>Bins</label><select id="hbin"><option value="std">Standard bands</option><option value="log" selected>Fine bands (log-style)</option><option value="lin10">Equal width, 10 bins</option><option value="lin20">Equal width, 20 bins</option><option value="lin40">Equal width, 40 bins</option></select></div>
+<div><label>Bar height shows</label><select id="hy"><option value="n">Number of plates</option><option value="v">Total value (£)</option></select></div>
+<div><label>Vertical scale</label><select id="hs"><option value="lin">Linear</option><option value="sqrt">Square-root (shows small bars)</option></select></div>
+<div><label>&nbsp;</label><button class="sec" id="hclr">Clear price selection</button></div>
+</div>
+<svg id="hsvg" viewBox="0 0 900 300" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Price histogram"></svg>
+<div class="hint" id="hinfo"></div>
+<div class="hint">Tap or click a bar to filter to that price range; drag across several bars to select a range (this sets the Min/Max price boxes). The dashed red line marks the median.</div></div>
+
+<div class="grid2"><div class="card"><b>Formats</b> <span class="tag">click to filter</span><div id="fmts"></div></div>
+<div class="card"><b>Top first characters</b> <span class="tag">click to filter</span><div id="lets"></div></div></div>
+
+<div class="card fold"><h3>Export results</h3>
+<div class="filters">
+<div><label>What to export</label><select id="escope"><option value="all">All filtered results (every page)</option><option value="page">Current page only</option><option value="sel">Selected rows (within filtered results)</option><option value="fav">Shortlisted plates (within filtered results)</option></select></div>
+<div><label>Price column</label><select id="eprice"><option value="shown">As shown (respects VAT toggle)</option><option value="both">Both listed and VAT-inclusive</option></select></div>
+<div><label>Include filter summary and statistics</label><select id="emeta"><option value="1">Yes (extra sheets / JSON fields / print header)</option><option value="0">No</option></select></div>
+</div>
+<div class="exp">
+<button id="x-csv">Download CSV</button><button id="x-xlsx">Download Excel (.xlsx)</button><button id="x-json">Download JSON</button>
+<button class="sec" id="x-copy">Copy as tab-separated</button><button class="sec" id="x-md">Copy as Markdown table</button><button class="sec" id="x-print">Print / save as PDF</button>
+</div>
+<div class="hint" id="xinfo"></div></div>
+
+<div class="card bulk"><div class="brow">
+<b id="selinfo"></b><span class="sp"></span>
+<button class="sec" id="b-page">Select page</button><button class="sec" id="b-all">Select all filtered</button><button class="sec" id="b-inv">Invert page</button><button class="sec" id="b-clr">Clear selection</button>
+<button id="b-add">★ Add selected to shortlist</button><button class="sec" id="b-rem">☆ Remove selected from shortlist</button>
+<button class="sec" id="b-exp">Export selected…</button>
+</div>
+<div class="brow" style="margin-top:8px"><span id="slinfo"></span><span class="sp"></span>
+<button class="sec" id="s-view">View shortlist only</button><button class="sec" id="s-addall">Shortlist all filtered</button><button class="sec" id="s-clr">Clear shortlist</button></div>
+<div class="hint">Tip: tick a row, then shift-click another to select everything between. The shortlist is saved in this browser; the selection is temporary unless you save it in a view.</div></div>
+
+<div class="card"><div class="msort"><select id="ms" aria-label="Sort by"></select><button class="sec" id="md" aria-label="Reverse sort direction">▲</button></div>
+<div class="pager" id="pgT" style="margin-bottom:10px"></div>
+<div class="scroll"><table class="rt"><thead><tr id="thead"></tr></thead><tbody id="tb"></tbody></table></div>
+<div class="pgb"><div class="pager" id="pgB"></div>
+<div class="go"><span>Go to page</span><input id="gopg" type="number" min="1" value="1" inputmode="numeric" aria-label="Go to page"><button class="sec" id="gobtn">Go</button><span>Rows per page</span>
+<select id="ps" aria-label="Rows per page"><option>10</option><option>25</option><option selected>50</option><option>100</option><option>300</option><option>All</option></select></div></div></div>
+</div>
+<button id="totop" aria-label="Back to top">↑</button>
+<div id="print"></div><div id="toast" role="status"></div>
+<script>
+const D=[{"n": 1, "v": "B443 AAE", "p": 99, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 7}, {"n": 2, "v": "AFZ 460", "p": 399, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 3, "v": "AFZ 490", "p": 399, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 4, "v": "AFZ 810", "p": 999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 5, "v": "V644 LAN", "p": 399, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 7}, {"n": 6, "v": "8243 AT", "p": 2999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 7, "v": "AVZ 101", "p": 999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 8, "v": "PAZ 120", "p": 1299, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 9, "v": "VAZ 120", "p": 1299, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 10, "v": "N28 BBM", "p": 150, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 6}, {"n": 11, "v": "L700 BET", "p": 199, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 7}, {"n": 12, "v": "BIL 2963", "p": 849, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 13, "v": "N121 BOY", "p": 249, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 7}, {"n": 14, "v": "N321 BOY", "p": 249, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 7}, {"n": 15, "v": "CA12 RYX", "p": 999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Current", "len": 7}, {"n": 16, "v": "H22 CAD", "p": 299, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 6}, {"n": 17, "v": "850 CAT", "p": 3799, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 18, "v": "T67 THY", "p": 199, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 6}, {"n": 19, "v": "C27 THY", "p": 1499, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 6}, {"n": 20, "v": "C28 THY", "p": 1499, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 6}, {"n": 21, "v": "CBZ 900", "p": 1799, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 22, "v": "CBZ 9000", "p": 1299, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 23, "v": "CFZ 812", "p": 4999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 24, "v": "CJZ 9000", "p": 999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 25, "v": "G23 CUP", "p": 299, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 6}, {"n": 26, "v": "D26 REL", "p": 999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 6}, {"n": 27, "v": "D22 VLA", "p": 499, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 6}, {"n": 28, "v": "DFZ 390", "p": 299, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 29, "v": "DFZ 790", "p": 299, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 30, "v": "DFZ 890", "p": 299, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 31, "v": "DIG 6321", "p": 899, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 32, "v": "DIL 1500", "p": 2299, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 33, "v": "D21 NKC", "p": 249, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 6}, {"n": 34, "v": "D21 NKF", "p": 249, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 6}, {"n": 35, "v": "D21 NKV", "p": 249, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 6}, {"n": 36, "v": "6400 E", "p": 5999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 5}, {"n": 37, "v": "E21 MON", "p": 999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 6}, {"n": 38, "v": "BDE 450N", "p": 499, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Suffix", "len": 7}, {"n": 39, "v": "E33 HHH", "p": 499, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 6}, {"n": 40, "v": "E33 LLL", "p": 499, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 6}, {"n": 41, "v": "E33 PPP", "p": 499, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 6}, {"n": 42, "v": "E33 VVV", "p": 499, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 6}, {"n": 43, "v": "E33 WWW", "p": 499, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 6}, {"n": 44, "v": "E33 YYY", "p": 499, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 6}, {"n": 45, "v": "EFZ 288", "p": 399, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 46, "v": "EFZ 360", "p": 399, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 47, "v": "EFZ 488", "p": 399, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 48, "v": "EFZ 599", "p": 399, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 49, "v": "D33 EJB", "p": 999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 6}, {"n": 50, "v": "H27 EJB", "p": 399, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 6}, {"n": 51, "v": "W400 EJB", "p": 399, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 7}, {"n": 52, "v": "E31 NOR", "p": 1999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 6}, {"n": 53, "v": "EMZ 1751", "p": 299, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 54, "v": "EMZ 5200", "p": 399, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 55, "v": "EMZ 5225", "p": 399, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 56, "v": "EN20 BLU", "p": 499, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Current", "len": 7}, {"n": 57, "v": "LU63 ENZ", "p": 999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Current", "len": 7}, {"n": 58, "v": "E25 EST", "p": 799, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 6}, {"n": 59, "v": "E26 EST", "p": 799, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 6}, {"n": 60, "v": "FCZ 599", "p": 399, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 61, "v": "LU63 FEZ", "p": 999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Current", "len": 7}, {"n": 62, "v": "FGZ 812", "p": 999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 63, "v": "FMZ 812", "p": 999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 64, "v": "F123 DAS", "p": 999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 7}, {"n": 65, "v": "Y60 FSH", "p": 121, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 6}, {"n": 66, "v": "FT 14", "p": 12999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 4}, {"n": 67, "v": "R121 GAB", "p": 299, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 7}, {"n": 68, "v": "GAM 816J", "p": 149, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Suffix", "len": 7}, {"n": 69, "v": "GAM 818J", "p": 149, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Suffix", "len": 7}, {"n": 70, "v": "G26 RTH", "p": 999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 6}, {"n": 71, "v": "GBZ 776", "p": 299, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 72, "v": "GEZ 3000", "p": 799, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 73, "v": "GIL 1477", "p": 1199, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 74, "v": "GO20 ONS", "p": 1099, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Current", "len": 7}, {"n": 75, "v": "G25 EME", "p": 1499, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 6}, {"n": 76, "v": "G22 NNE", "p": 399, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 6}, {"n": 77, "v": "G26 VEL", "p": 499, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 6}, {"n": 78, "v": "N121 HAS", "p": 199, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 7}, {"n": 79, "v": "HAZ 650", "p": 1199, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 80, "v": "HFZ 812", "p": 249, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 81, "v": "94 HG", "p": 9999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 4}, {"n": 82, "v": "IG 16", "p": 39999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 4}, {"n": 83, "v": "IIG 5775", "p": 199, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 84, "v": "1450 IL", "p": 1499, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 85, "v": "IMZ 411", "p": 2999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 86, "v": "IMZ 414", "p": 1499, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 87, "v": "IMZ 711", "p": 1499, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 88, "v": "IMZ 611", "p": 1499, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 89, "v": "ISZ 6677", "p": 199, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 90, "v": "J121 OME", "p": 299, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 7}, {"n": 91, "v": "J28 RRY", "p": 799, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 6}, {"n": 92, "v": "JE12 RYS", "p": 1999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Current", "len": 7}, {"n": 93, "v": "JIL 5352", "p": 399, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 94, "v": "JIL 7266", "p": 375, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 95, "v": "R121 JLS", "p": 349, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 7}, {"n": 96, "v": "JSZ 8700", "p": 129, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 97, "v": "JUA 1N", "p": 3999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Suffix", "len": 5}, {"n": 98, "v": "L321 JUS", "p": 199, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 7}, {"n": 99, "v": "KA12 LAS", "p": 1999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Current", "len": 7}, {"n": 100, "v": "K121 THY", "p": 499, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 7}, {"n": 101, "v": "K321 THX", "p": 299, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 7}, {"n": 102, "v": "KEZ 6", "p": 8999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 4}, {"n": 103, "v": "KEZ 9", "p": 8999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 4}, {"n": 104, "v": "KH11 LUD", "p": 399, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Current", "len": 7}, {"n": 105, "v": "KSZ 7728", "p": 39, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 106, "v": "LA12 RYS", "p": 1999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Current", "len": 7}, {"n": 107, "v": "LIA 964", "p": 1999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 108, "v": "L121 TTY", "p": 249, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 7}, {"n": 109, "v": "P121 OVE", "p": 249, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 7}, {"n": 110, "v": "LRZ 575", "p": 699, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 111, "v": "LS 8430", "p": 2499, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 112, "v": "LXZ 130", "p": 399, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 113, "v": "M16 RGT", "p": 399, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 6}, {"n": 114, "v": "MA21 ANX", "p": 499, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Current", "len": 7}, {"n": 115, "v": "MA21 ONO", "p": 499, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Current", "len": 7}, {"n": 116, "v": "F22 MCS", "p": 249, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 6}, {"n": 117, "v": "H22 MCS", "p": 249, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 6}, {"n": 118, "v": "N121 MCS", "p": 299, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 7}, {"n": 119, "v": "H21 MCW", "p": 249, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 6}, {"n": 120, "v": "ML 1111", "p": 13999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 121, "v": "E23 MOE", "p": 299, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 6}, {"n": 122, "v": "MU12 RYS", "p": 1999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Current", "len": 7}, {"n": 123, "v": "NAD 65M", "p": 3999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Suffix", "len": 6}, {"n": 124, "v": "45 NT", "p": 11999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 4}, {"n": 125, "v": "OFZ 270", "p": 299, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 126, "v": "OIL 14", "p": 14999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 5}, {"n": 127, "v": "OIL 19", "p": 14999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 5}, {"n": 128, "v": "OIL 3081", "p": 449, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 129, "v": "OIL 5293", "p": 449, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 130, "v": "OIL 6481", "p": 449, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 131, "v": "OIL 6487", "p": 449, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 132, "v": "OMY 477P", "p": 99, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Suffix", "len": 7}, {"n": 133, "v": "Y321 OOO", "p": 1299, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 7}, {"n": 134, "v": "PA12 RYS", "p": 1999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Current", "len": 7}, {"n": 135, "v": "PE12 RYS", "p": 1999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Current", "len": 7}, {"n": 136, "v": "PHA 6R", "p": 999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Suffix", "len": 5}, {"n": 137, "v": "PO25 CHB", "p": 4999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Current", "len": 7}, {"n": 138, "v": "PO25 CHG", "p": 4999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Current", "len": 7}, {"n": 139, "v": "PP62 PPP", "p": 299, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Current", "len": 7}, {"n": 140, "v": "R 185", "p": 24999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 4}, {"n": 141, "v": "7747 R", "p": 3999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 5}, {"n": 142, "v": "R46 HEY", "p": 1299, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 6}, {"n": 143, "v": "Y121 RAT", "p": 249, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 7}, {"n": 144, "v": "98 RD", "p": 14999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 4}, {"n": 145, "v": "REZ 242", "p": 499, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 146, "v": "RFZ 575", "p": 399, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 147, "v": "79 RJ", "p": 19999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 4}, {"n": 148, "v": "RJC 10", "p": 9999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 5}, {"n": 149, "v": "ROI 132", "p": 3499, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 150, "v": "R601 NDS", "p": 299, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 7}, {"n": 151, "v": "F21 OMA", "p": 799, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 6}, {"n": 152, "v": "F22 OMA", "p": 799, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 6}, {"n": 153, "v": "RT 121", "p": 12999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 5}, {"n": 154, "v": "E23 RUN", "p": 299, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 6}, {"n": 155, "v": "Y700 RUN", "p": 250, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 7}, {"n": 156, "v": "SAZ 4", "p": 11999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 4}, {"n": 157, "v": "SBZ 9000", "p": 999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 158, "v": "SFZ 190", "p": 299, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 159, "v": "SFZ 599", "p": 229, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 160, "v": "S123 ADX", "p": 399, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 7}, {"n": 161, "v": "517 GH", "p": 10999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 5}, {"n": 162, "v": "J31 NGH", "p": 1999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 6}, {"n": 163, "v": "SH23 LLE", "p": 999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Current", "len": 7}, {"n": 164, "v": "SP76 TRE", "p": 4999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Current", "len": 7}, {"n": 165, "v": "ST13 LAS", "p": 299, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Current", "len": 7}, {"n": 166, "v": "ST20 ALE", "p": 2499, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Current", "len": 7}, {"n": 167, "v": "L400 SVR", "p": 399, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 7}, {"n": 168, "v": "L900 SVR", "p": 399, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 7}, {"n": 169, "v": "SVR 771W", "p": 149, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Suffix", "len": 7}, {"n": 170, "v": "SVR 818W", "p": 199, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Suffix", "len": 7}, {"n": 171, "v": "P321 TAS", "p": 299, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 7}, {"n": 172, "v": "T322 EES", "p": 199, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 7}, {"n": 173, "v": "TE23 SAX", "p": 599, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Current", "len": 7}, {"n": 174, "v": "TEZ 7", "p": 12999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 4}, {"n": 175, "v": "TIJ 99", "p": 2599, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 5}, {"n": 176, "v": "TY21 CUP", "p": 599, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Current", "len": 7}, {"n": 177, "v": "UIG 7693", "p": 199, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 178, "v": "UUI 3", "p": 7999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 4}, {"n": 179, "v": "VE64 LAR", "p": 299, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Current", "len": 7}, {"n": 180, "v": "VIG 7202", "p": 199, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 181, "v": "VLZ 650", "p": 279, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 182, "v": "W475 HES", "p": 299, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 7}, {"n": 183, "v": "W479 HES", "p": 299, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 7}, {"n": 184, "v": "WE07 ERN", "p": 299, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Current", "len": 7}, {"n": 185, "v": "WB20 WNE", "p": 499, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Current", "len": 7}, {"n": 186, "v": "WHZ 686", "p": 269, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 187, "v": "WIG 3870", "p": 199, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 188, "v": "WIG 4085", "p": 199, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 189, "v": "WIG 4091", "p": 199, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 190, "v": "WIG 4143", "p": 199, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 191, "v": "WIG 4189", "p": 199, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 192, "v": "WIG 4190", "p": 199, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 193, "v": "WIG 4196", "p": 199, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 194, "v": "WIG 4197", "p": 199, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 195, "v": "WIG 4638", "p": 199, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 196, "v": "WIG 4642", "p": 199, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 197, "v": "WIG 7509", "p": 299, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 198, "v": "WIG 8488", "p": 59, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 199, "v": "Y700 WOO", "p": 299, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 7}, {"n": 200, "v": "Y121 WRX", "p": 250, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 7}, {"n": 201, "v": "WXI 9876", "p": 199, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 202, "v": "XFZ 488", "p": 349, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 203, "v": "XIG 101", "p": 999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 204, "v": "XIG 6304", "p": 199, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 205, "v": "XIG 9579", "p": 39, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 206, "v": "XJT 296B", "p": 99, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Suffix", "len": 7}, {"n": 207, "v": "XXI 812", "p": 4999, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 208, "v": "XY53 XYZ", "p": 299, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Current", "len": 7}, {"n": 209, "v": "Y321 LOW", "p": 399, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Prefix", "len": 7}, {"n": 210, "v": "YE61 LOW", "p": 399, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Current", "len": 7}, {"n": 211, "v": "YIG 5499", "p": 39, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 212, "v": "YIG 5502", "p": 39, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 213, "v": "YIG 5810", "p": 49, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 214, "v": "YIG 5874", "p": 49, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 215, "v": "YIG 6570", "p": 39, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 216, "v": "YIG 6642", "p": 39, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 217, "v": "YIG 6678", "p": 49, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 218, "v": "YIG 7272", "p": 149, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 219, "v": "YIG 7322", "p": 29, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 220, "v": "YIG 7769", "p": 39, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 221, "v": "YIG 8062", "p": 39, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 222, "v": "YIG 8010", "p": 99, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 223, "v": "YIG 8142", "p": 39, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 224, "v": "YIG 8458", "p": 39, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 225, "v": "YIG 8700", "p": 149, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 226, "v": "YUI 116", "p": 799, "part": "Part 1", "vat": "Plus VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 227, "v": "AE 6", "p": 69999, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Dateless", "len": 3}, {"n": 228, "v": "AE 99", "p": 37999, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Dateless", "len": 4}, {"n": 229, "v": "AIJ 1", "p": 44999, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Dateless", "len": 4}, {"n": 230, "v": "P29 AMM", "p": 399, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Prefix", "len": 6}, {"n": 231, "v": "AR 9903", "p": 3799, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 232, "v": "BIG 7384", "p": 399, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 233, "v": "BIG 8025", "p": 999, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 234, "v": "CHZ 5", "p": 14999, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Dateless", "len": 4}, {"n": 235, "v": "CHZ 5060", "p": 499, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 236, "v": "C7 ERA", "p": 1799, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Prefix", "len": 5}, {"n": 237, "v": "CIL 21", "p": 4999, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Dateless", "len": 5}, {"n": 238, "v": "DDZ 847", "p": 699, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 239, "v": "DIL 100", "p": 8999, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 240, "v": "L800 DJC", "p": 399, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Prefix", "len": 7}, {"n": 241, "v": "R222 DLY", "p": 899, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Prefix", "len": 7}, {"n": 242, "v": "54 DM", "p": 24999, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Dateless", "len": 4}, {"n": 243, "v": "G600 DSB", "p": 249, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Prefix", "len": 7}, {"n": 244, "v": "EGG 123X", "p": 999, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Suffix", "len": 7}, {"n": 245, "v": "EIA 9", "p": 8999, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Dateless", "len": 4}, {"n": 246, "v": "EXI 831", "p": 699, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 247, "v": "FFZ 6500", "p": 499, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 248, "v": "FLZ 599", "p": 349, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 249, "v": "GIL 8777", "p": 999, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 250, "v": "B1 HAT", "p": 1999, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Prefix", "len": 5}, {"n": 251, "v": "HS 1919", "p": 4999, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 252, "v": "IIG 3", "p": 19999, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Dateless", "len": 4}, {"n": 253, "v": "INZ 4000", "p": 999, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 254, "v": "AS03 JAY", "p": 399, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Current", "len": 7}, {"n": 255, "v": "59 JB", "p": 34999, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Dateless", "len": 4}, {"n": 256, "v": "JEZ 7412", "p": 149, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 257, "v": "JIL 909", "p": 1299, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 258, "v": "JSZ 1002", "p": 199, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 259, "v": "JSZ 1005", "p": 199, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 260, "v": "L 9081", "p": 6499, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Dateless", "len": 5}, {"n": 261, "v": "LEE 517", "p": 7999, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 262, "v": "LIB 314", "p": 1999, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 263, "v": "LNZ 6493", "p": 299, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 264, "v": "L10 MCC", "p": 1199, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Prefix", "len": 6}, {"n": 265, "v": "MHZ 5995", "p": 179, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 266, "v": "MXI 60", "p": 2999, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Dateless", "len": 5}, {"n": 267, "v": "41 NG", "p": 22999, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Dateless", "len": 4}, {"n": 268, "v": "NIJ 4321", "p": 899, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 269, "v": "OR 7", "p": 79999, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Dateless", "len": 3}, {"n": 270, "v": "PE 93", "p": 14999, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Dateless", "len": 4}, {"n": 271, "v": "RAS 11", "p": 22999, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Dateless", "len": 5}, {"n": 272, "v": "P29 RJG", "p": 399, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Prefix", "len": 6}, {"n": 273, "v": "ROI 990", "p": 1499, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 274, "v": "SOI 41", "p": 2999, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Dateless", "len": 5}, {"n": 275, "v": "GL69 SXY", "p": 199, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Current", "len": 7}, {"n": 276, "v": "TIG 3260", "p": 249, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 277, "v": "UNA 655S", "p": 999, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Suffix", "len": 7}, {"n": 278, "v": "WLZ 4495", "p": 199, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Dateless", "len": 7}, {"n": 279, "v": "XZ 7000", "p": 3499, "part": "Part 2", "vat": "No VAT", "src": "Main list", "t": "Dateless", "len": 6}, {"n": 280, "v": "E33 HHH", "p": null, "part": "Part 1", "vat": "Plus VAT", "src": "New + VAT Stock banner", "t": "Prefix", "len": 6}, {"n": 281, "v": "E33 LLL", "p": null, "part": "Part 1", "vat": "Plus VAT", "src": "New + VAT Stock banner", "t": "Prefix", "len": 6}, {"n": 282, "v": "E33 PPP", "p": null, "part": "Part 1", "vat": "Plus VAT", "src": "New + VAT Stock banner", "t": "Prefix", "len": 6}, {"n": 283, "v": "E33 VVV", "p": null, "part": "Part 1", "vat": "Plus VAT", "src": "New + VAT Stock banner", "t": "Prefix", "len": 6}, {"n": 284, "v": "E33 WWW", "p": null, "part": "Part 1", "vat": "Plus VAT", "src": "New + VAT Stock banner", "t": "Prefix", "len": 6}, {"n": 285, "v": "E33 YYY", "p": null, "part": "Part 1", "vat": "Plus VAT", "src": "New + VAT Stock banner", "t": "Prefix", "len": 6}, {"n": 286, "v": "IIG 3", "p": null, "part": "Part 2", "vat": "No VAT", "src": "New No VAT Stock banner", "t": "Dateless", "len": 4}, {"n": 287, "v": "ROI 990", "p": null, "part": "Part 2", "vat": "No VAT", "src": "New No VAT Stock banner", "t": "Dateless", "len": 6}], DICT=["WILLIAMS", "ROBERTS", "WILLIAM", "ANDREW", "CLAIRE", "DAVIES", "DEBBIE", "DUNCAN", "LUDLOW", "OLIVER", "RACHEL", "SOPHIE", "TAYLOR", "THOMAS", "TRIXIE", "WALKER", "WILSON", "WRIGHT", "ANGEL", "BOBBY", "BRIAN", "BROWN", "CHRIS", "DAVID", "DIANE", "EDDIE", "ELLIE", "EVANS", "GAVIN", "GEOFF", "GREEN", "HARRY", "HAZEL", "HELEN", "JAMES", "JANET", "JASON", "JONES", "JULIE", "KATIE", "KEITH", "KERRY", "LAURA", "LEWIS", "LINDA", "LOUIS", "MOLLY", "NIGEL", "OLIVE", "OSCAR", "PEARL", "PERRY", "PETER", "RILEY", "ROGER", "ROSIE", "SALLY", "SARAH", "SCOTT", "SHAUN", "SIMON", "SMITH", "STEVE", "TAMMY", "TERRY", "TRACY", "VINCE", "WENDY", "ABBY", "ADAM", "ALAN", "ALEX", "ANDY", "ANNA", "ANNE", "BETH", "BILL", "BLUE", "CARA", "CARL", "DAVE", "DEAN", "DOUG", "ELLA", "ELSA", "EMMA", "ENZO", "ERIC", "FRED", "GAIL", "GARY", "GINA", "GLEN", "GREG", "HALL", "HANK", "HILL", "HUGH", "ISLA", "JACK", "JADE", "JAKE", "JANE", "JEAN", "JOAN", "JOEL", "JOHN", "JOSH", "JUDE", "JUDY", "KARL", "KATE", "KING", "KYLE", "LANE", "LARA", "LEAH", "LENA", "LEON", "LIAM", "LILY", "LISA", "LUKE", "LYNN", "MARK", "MARY", "MAYA", "MIKE", "NEIL", "NICK", "NINA", "NOEL", "NORA", "OLLY", "OWEN", "PAUL", "PETE", "PHIL", "RHYS", "RICK", "RITA", "ROSE", "ROSS", "RUBY", "RUTH", "RYAN", "SEAN", "SETH", "SIAN", "STAN", "TARA", "TESS", "TINA", "TOBY", "TONY", "TROY", "VERA", "WADE", "WALT", "WILL", "WOOD", "ACE", "AIR", "AMY", "ANT", "ART", "ASH", "BAR", "BEN", "BIG", "BIT", "BOB", "BOY", "CAB", "CAR", "CAT", "CUP", "DAD", "DAN", "DEE", "DIG", "ERA", "EVE", "FAB", "FUN", "GOD", "HAL", "HAT", "HEY", "HOT", "IAN", "ICE", "INK", "IVY", "JAY", "JEN", "JIM", "JOE", "JON", "JOY", "KEN", "KEY", "KIM", "LAD", "LAW", "LEE", "LEO", "LOW", "MAN", "MAX", "MEG", "MEL", "MIA", "MUM", "NAT", "NED", "NEW", "OIL", "ONE", "OWN", "PAL", "PAM", "PAR", "PAT", "PET", "PIE", "RAT", "RAY", "RED", "REG", "REX", "ROB", "RON", "ROY", "RUN", "SAM", "SAX", "SEA", "SID", "SKY", "STU", "SUE", "SUN", "TAX", "TEA", "TED", "TIM", "TOM", "TOP", "TOY", "UNA", "VAL", "VAN", "VIC", "WAR", "WES", "WIN", "WOO", "YES", "ZAK", "ZOE", "ZOO", "JO"];
+const $=id=>document.getElementById(id);
+const ls={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
+const jparse=(s,d)=>{try{const v=JSON.parse(s);return v==null?d:v}catch(e){return d}};
+const gbp=n=>n==null?'—':'£'+Math.round(n).toLocaleString('en-GB');
+const short=n=>n>=1e6?'£'+(n/1e6).toFixed(1)+'m':n>=1e3?'£'+(Math.round(n/100)/10)+'k':'£'+n;
+const MAP={0:'O',1:'I',2:'Z',3:'E',4:'A',5:'S',6:'G',7:'T',8:'B'};
+let S={sorts:[{k:'n',d:1},{k:'alpha',d:1}],page:0,types:new Set(),quick:new Set(),let:'',fav:new Set(jparse(ls.get('vrnfav'),[])),sel:new Set(),last:null,band:null,bins:[],pageRows:[],ctx:null,rkRows:[],pages:1};
+const saveFav=()=>ls.set('vrnfav',JSON.stringify([...S.fav]));
+const price=r=>r.p==null?null:(($('vat').value==='1'&&r.part==='Part 1')?Math.round(r.p*1.2):r.p);
+const incVat=r=>r.p==null?null:(r.part==='Part 1'?Math.round(r.p*1.2):r.p);
+const nLetters=r=>r.v.replace(/[^A-Z]/g,'').length, nDigits=r=>r.v.replace(/\D/g,'').length;
+const TYPES=[...new Set(D.map(r=>r.t))];
+const TYPE_HINT={Current:'AB12 CDE (2001–)',Prefix:'A123 BCD (1983–2001)',Suffix:'ABC 123D (1963–1983)',Dateless:'ABC 123, 123 ABC, AB 1 …'};
+TYPES.forEach(t=>$('wf').add(new Option(t,t)));
+[...new Set(D.map(r=>r.len))].sort((a,b)=>a-b).forEach(l=>$('len').add(new Option(l,l)));
+document.querySelectorAll('label').forEach(l=>{const n=l.nextElementSibling;if(n&&n.id&&!l.htmlFor&&/INPUT|SELECT/.test(n.tagName))l.htmlFor=n.id});
+const isMobile=()=>!!(window.matchMedia&&window.matchMedia('(max-width:700px)').matches);
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('on'),2200)}
+
+/* ---- theme ---- */
+const THEMES=['auto','light','dark'];
+function applyTheme(t){const r=document.documentElement;if(t==='auto')r.removeAttribute('data-theme');else r.setAttribute('data-theme',t);
+ $('theme').textContent='Theme: '+{auto:'Auto',light:'Light',dark:'Dark'}[t];ls.set('vrntheme',t)}
+let theme=THEMES.includes(ls.get('vrntheme'))?ls.get('vrntheme'):'auto';
+$('theme').onclick=()=>{theme=THEMES[(THEMES.indexOf(theme)+1)%3];applyTheme(theme);if(window._view)drawHistNow()};
+applyTheme(theme);
+
+/* ---- sort definitions ---- */
+const SORTS=[['n','Original list order'],['price','Price'],['alpha','VRN A–Z (ignoring spaces)'],['alphaL','Letters first, then number'],['type','Format / type'],['len','Characters'],['letters','Number of letters'],['digits','Number of digits'],['part','Part / VAT'],['ppc','Price per character'],['words','Reads as (name/word)'],['rank','Rank'],['score','Composite score'],['fav','Shortlisted first'],['sel','Selected first']];
+SORTS.forEach(([k,l])=>{$('s1').add(new Option(l,k));$('s2').add(new Option(l,k));$('ms').add(new Option(l,k))});
+const defDir=k=>k==='score'?-1:1;
+function syncSortUI(){$('s1').value=S.sorts[0].k;$('d1').value=S.sorts[0].d;$('s2').value=S.sorts[1].k;$('d2').value=S.sorts[1].d;$('ms').value=S.sorts[0].k;$('md').textContent=S.sorts[0].d>0?'▲':'▼'}
+function sortVal(r,k){switch(k){
+ case 'n':return r.n;case 'price':return price(r);case 'alpha':return r.v.replace(/ /g,'');
+ case 'alphaL':return r.v.replace(/[^A-Z]/g,'')+'|'+r.v.replace(/\D/g,'').padStart(6,'0');
+ case 'type':return r.t;case 'len':return r.len;case 'letters':return nLetters(r);case 'digits':return nDigits(r);case 'part':return r.part;
+ case 'ppc':return r.p==null?null:price(r)/r.len;case 'words':return words(r).join(' ')||null;
+ case 'rank':return r._rk??null;case 'score':return r._sc??null;
+ case 'fav':return S.fav.has(r.v)?0:1;case 'sel':return S.sel.has(r.v)?0:1}}
+function cmpBy(a,b,k,d){const x=sortVal(a,k),y=sortVal(b,k);if(x==null&&y==null)return 0;if(x==null)return 1;if(y==null)return -1;return (x<y?-1:x>y?1:0)*d}
+const HEAD=[['sel',''],['n','#','n'],['v','VRN','alpha'],['p','Price','price','r'],['rk','Rank','rank'],['part','Part','part'],['t','Format','type'],['w','Reads as','words'],['len','Chars','len','r'],['fav','★','fav']];
+function renderHead(){$('thead').innerHTML=HEAD.map(c=>{if(c[0]==='sel')return '<th class="nos"><input type="checkbox" id="selpg" title="Select / deselect this page" aria-label="Select all on this page"></th>';
+ const on=S.sorts[0].k===c[2],arrow=on?(S.sorts[0].d>0?' ▲':' ▼'):'';return `<th class="${c[3]||''}" data-s="${c[2]}" tabindex="0" role="button" aria-sort="${on?(S.sorts[0].d>0?'ascending':'descending'):'none'}">${c[1]}${arrow}</th>`}).join('');
+ document.querySelectorAll('th[data-s]').forEach(th=>{const go=()=>{const k=th.dataset.s;if(S.sorts[0].k===k)S.sorts[0].d*=-1;else S.sorts[0]={k,d:defDir(k)};syncSortUI();S.page=0;render()};th.onclick=go;th.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}}})}
+$('s1').oninput=()=>{S.sorts[0]={k:$('s1').value,d:defDir($('s1').value)};syncSortUI();S.page=0;render()};
+$('d1').oninput=()=>{S.sorts[0].d=+$('d1').value;syncSortUI();S.page=0;render()};
+$('s2').oninput=()=>{S.sorts[1]={k:$('s2').value,d:defDir($('s2').value)};syncSortUI();render()};
+$('d2').oninput=()=>{S.sorts[1].d=+$('d2').value;render()};
+$('ms').oninput=()=>{S.sorts[0]={k:$('ms').value,d:defDir($('ms').value)};syncSortUI();S.page=0;render()};
+$('md').onclick=()=>{S.sorts[0].d*=-1;syncSortUI();S.page=0;render()};
+document.querySelectorAll('.chip[data-sort]').forEach(e=>e.onclick=()=>{const [k,d]=e.dataset.sort.split('|');S.sorts[0]={k,d:+d};syncSortUI();S.page=0;render()});
+
+/* ---- name matching ---- */
+function compact(r){
+ const dg=$('dg').value==='1',keep=$('bd').value==='1';
+ const key=dg+'|'+keep; if(r._k===key)return r._c;
+ let s='',idx=[];
+ for(let i=0;i<r.v.length;i++){const c=r.v[i];
+  if(c===' '){ if(keep){s+='|';idx.push(i)} continue }
+  if(/\d/.test(c)){ s+=dg?MAP[c]||'#':'#' } else s+=c;
+  idx.push(i)}
+ r._k=key;r._c={s,idx};return r._c}
+function ed(p,t,k){const m=p.length;let prev=Array.from({length:m+1},(_,i)=>i),best=-1,bv=k+1;
+ for(let j=1;j<=t.length;j++){const cur=[0];
+  for(let i=1;i<=m;i++){cur[i]=Math.min(prev[i]+1,cur[i-1]+1,prev[i-1]+(p[i-1]===t[j-1]?0:1))}
+  if(cur[m]<bv){bv=cur[m];best=j}
+  prev=cur}
+ return bv<=k?best:-1}
+function words(r){const {s}=compact(r);const k='w'+r._k;if(r._w&&r._wk===k)return r._w;
+ r._w=DICT.filter(w=>s.includes(w));r._wk=k;
+ r._w=r._w.filter(w=>!r._w.some(o=>o!==w&&o.includes(w)));return r._w}
+function parseNames(){return $('nm').value.toUpperCase().split(/[,;\n]+/).map(x=>x.replace(/[^A-Z]/g,'')).filter(Boolean)}
+function nameMatch(r){
+ const mode=$('nmode').value,raw=$('nm').value.trim(); if(!raw&&mode!=='word')return {ok:true,none:true};
+ const c=compact(r),s=c.s,hl=(a,b)=>({ok:true,hl:[c.idx[a],c.idx[b-1]]});
+ if(mode==='word'){const ws=words(r);
+  if(raw){const ns=parseNames();const hit=ns.find(n=>ws.includes(n)||s.includes(n));if(!hit)return {ok:false};const a=s.indexOf(hit);return a<0?{ok:true}:hl(a,a+hit.length)}
+  return ws.length?{ok:true,word:true}:{ok:false}}
+ if(mode==='initc'||mode==='inito'){
+  const toks=raw.toUpperCase().split(/\s+/).map(x=>x.replace(/[^A-Z]/g,'')).filter(Boolean);
+  const ini=(toks.length===1&&toks[0].length>=2&&toks[0].length<=4)?toks[0]:toks.map(x=>x[0]).join('');
+  if(ini.length<2)return {ok:true,none:true};
+  if(mode==='initc'){const a=s.indexOf(ini);return a<0?{ok:false}:hl(a,a+ini.length)}
+  let p=-1;for(const ch of ini){p=s.indexOf(ch,p+1);if(p<0)return {ok:false}}
+  return {ok:true,loose:true}}
+ const ns=parseNames();if(!ns.length)return {ok:true,none:true};
+ for(const n of ns){
+  if(mode==='contains'){const a=s.indexOf(n);if(a>=0)return hl(a,a+n.length)}
+  else if(mode==='starts'){for(const seg of [s,...s.split('|')]){if(seg.startsWith(n)){const a=s.indexOf(seg);return hl(a,a+n.length)}}}
+  else if(mode==='ends'){for(const seg of [s,...s.split('|')]){if(seg.endsWith(n)){const a=s.indexOf(seg)+seg.length-n.length;return hl(a,a+n.length)}}}
+  else{const k=mode==='fuzzy1'?1:2;if(n.length<3)continue;
+   if(s.includes(n)){const a=s.indexOf(n);return hl(a,a+n.length)}
+   const e=ed(n,s,k);if(e>=0)return {ok:true,near:true}}}
+ return {ok:false}}
+function plateHTML(r){const m=r._m;if(!m||!m.hl)return r.v;const [a,b]=m.hl;
+ return r.v.slice(0,a)+'<mark>'+r.v.slice(a,b+1)+'</mark>'+r.v.slice(b+1)}
+
+/* ---- quick filters ---- */
+const QUICK=[['p1','Part 1',r=>r.part==='Part 1'],['p2','Part 2 (no VAT)',r=>r.part==='Part 2'],['priced','Priced only',r=>r.p!=null],['word','Reads as a name/word',r=>words(r).length>0],['u250','Under £250',r=>{const p=price(r);return p!=null&&p<250}],['u1k','Under £1,000',r=>{const p=price(r);return p!=null&&p<1000}],['short5','5 characters or fewer',r=>r.len<=5],['fav','★ Shortlisted',r=>S.fav.has(r.v)]];
+function filt(ignoreBand,ignoreTypes,ignoreName,ignorePrice){
+ const q=$('q').value.toUpperCase().replace(/\s/g,''),pm=ignorePrice?'':$('pmin').value,px=ignorePrice?'':$('pmax').value,rx=$('rx').value;
+ let re=null;try{if(rx)re=new RegExp(rx,'i')}catch(e){}
+ $('rx').style.borderColor=(rx&&!re)?'#e11d48':'';
+ const qs=QUICK.filter(x=>S.quick.has(x[0]));
+ return D.filter(r=>{
+  r._m=null;
+  if(q&&!r.v.replace(/ /g,'').includes(q))return false;
+  if(re&&!re.test(r.v))return false;
+  if($('part').value&&r.part!==$('part').value)return false;
+  if(!ignoreTypes&&S.types.size&&!S.types.has(r.t))return false;
+  if($('len').value&&r.len!=$('len').value)return false;
+  if(S.let&&r.v[0]!==S.let)return false;
+  const s=$('show').value;if(s==='priced'&&r.p==null)return false;if(s==='new'&&r.src==='Main list')return false;if(s==='fav'&&!S.fav.has(r.v))return false;if(s==='sel'&&!S.sel.has(r.v))return false;
+  for(const x of qs)if(!x[2](r))return false;
+  const p=price(r);
+  if((pm||px)&&p==null)return false;
+  if(pm&&p<+pm)return false;if(px&&p>+px)return false;
+  if(!ignoreBand&&S.band){if(p==null||p<S.band[0]||p>S.band[1])return false}
+  if(!ignoreName){const m=nameMatch(r);if(!m.ok)return false;r._m=m}
+  return true});}
+function renderPills(rowsNoType){
+ const cnt={};rowsNoType.forEach(r=>cnt[r.t]=(cnt[r.t]||0)+1);
+ $('tpills').innerHTML='<span class="lbl">Plate type:</span>'+`<button class="pill ${S.types.size?'':'on'}" data-t="" aria-pressed="${!S.types.size}">All <small>${rowsNoType.length}</small></button>`+TYPES.map(t=>`<button class="pill ${S.types.has(t)?'on':''}" data-t="${t}" aria-pressed="${S.types.has(t)}" title="${TYPE_HINT[t]||t}">${t} <small>${cnt[t]||0}</small></button>`).join('');
+ $('qpills').innerHTML='<span class="lbl">Quick filters:</span>'+QUICK.map(x=>`<button class="pill ${S.quick.has(x[0])?'on':''}" data-q="${x[0]}" aria-pressed="${S.quick.has(x[0])}">${x[1]}</button>`).join('')+`<button class="pill" data-q="" title="Clear type and quick filters">Clear pills</button>`;
+ $('tpills').querySelectorAll('.pill').forEach(b=>b.onclick=()=>{const t=b.dataset.t;if(!t)S.types.clear();else S.types.has(t)?S.types.delete(t):S.types.add(t);S.page=0;render()});
+ $('qpills').querySelectorAll('.pill').forEach(b=>b.onclick=()=>{const q=b.dataset.q;
+  if(!q){S.quick.clear();S.types.clear()}
+  else if(S.quick.has(q))S.quick.delete(q);
+  else{S.quick.add(q);if(q==='p1')S.quick.delete('p2');if(q==='p2')S.quick.delete('p1');if(q==='u250')S.quick.delete('u1k');if(q==='u1k')S.quick.delete('u250')}
+  S.page=0;render()})}
+
+/* ---- ranking ---- */
+const RK_LABEL={price_lo:'cheapest price',price_hi:'dearest price',ppc_lo:'lowest price per character',short:'fewest characters',long:'most characters',name:'name-match quality',score:'composite score'};
+function lowerB(a,x){let lo=0,hi=a.length;while(lo<hi){const m=(lo+hi)>>1;if(a[m]<x)lo=m+1;else hi=m}return lo}
+function upperB(a,x){let lo=0,hi=a.length;while(lo<hi){const m=(lo+hi)>>1;if(a[m]<=x)lo=m+1;else hi=m}return lo}
+function dedupe(rows){const m=new Map();rows.forEach(r=>{const o=m.get(r.v);if(!o||(o.p==null&&r.p!=null))m.set(r.v,r)});return [...m.values()]}
+function nameQ(r){const m=nameMatch(r);if(!m.ok||m.none)return 0;
+ if(m.hl)return r.v.slice(m.hl[0],m.hl[1]+1).replace(/ /g,'').length/r.len;
+ if(m.word){const ws=words(r);return ws.length?Math.max(...ws.map(w=>w.length))/r.len:0}
+ return m.near?0.4:m.loose?0.3:0.5}
+function scoreOf(r,c){const p=price(r);
+ const cheap=p==null||c.prices.length<2?0:1-lowerB(c.prices,p)/(c.prices.length-1);
+ const sh=c.mx>c.mn?(c.mx-r.len)/(c.mx-c.mn):0,nq=nameQ(r),wd=words(r).length?1:0,fm=c.pref&&r.t===c.pref?1:0;
+ return c.sw?Math.round(1000*(c.W[0]*cheap+c.W[1]*sh+c.W[2]*nq+c.W[3]*wd+c.W[4]*fm)/c.sw)/10:0}
+function metricVal(r,c){switch(c.m){
+ case 'price_lo':case 'price_hi':return price(r);
+ case 'ppc_lo':return r.p==null?null:price(r)/r.len;
+ case 'short':case 'long':return r.len;
+ case 'name':return nameQ(r);
+ case 'score':return scoreOf(r,c)}}
+function makeCtx(view){const m=$('rkm').value,scope=dedupe($('rks').value==='all'?D:view);
+ const lens=scope.map(r=>r.len),W=[1,2,3,4,5].map(i=>+$('w'+i).value);
+ const c={m,desc:['price_hi','long','name','score'].includes(m),prices:scope.map(price).filter(x=>x!=null).sort((a,b)=>a-b),mn:lens.length?Math.min(...lens):0,mx:lens.length?Math.max(...lens):0,W,sw:W.reduce((a,b)=>a+b,0),pref:$('wf').value};
+ c.vals=scope.map(r=>metricVal(r,c)).filter(v=>v!=null).sort((a,b)=>a-b);return c}
+function rankOf(r,c){const v=metricVal(r,c);if(v==null)return null;return c.desc?c.vals.length-upperB(c.vals,v)+1:lowerB(c.vals,v)+1}
+function applyRanks(view){const c=makeCtx(view);S.ctx=c;
+ D.forEach(r=>{r._rk=null;r._sc=null});
+ view.forEach(r=>{r._rk=rankOf(r,c);r._sc=scoreOf(r,c)});
+ S.rkRows=dedupe(view).filter(r=>r._rk!=null).sort((a,b)=>a._rk-b._rk||a.n-b.n);
+ $('rkinfo').textContent=`Ranking by ${RK_LABEL[c.m]} within ${$('rks').value==='all'?'the whole list':'the current filtered rows'} (${c.vals.length} plates ranked, ties share a rank). Score is a 0–100 blend of the weights above.`;
+ $('wts').classList.toggle('hid',c.m!=='score')}
+['w1','w2','w3','w4','w5'].forEach((id,i)=>{$(id).oninput=()=>{$('wv'+(i+1)).textContent=$(id).value;render()}});
+$('wf').oninput=render;$('rkm').oninput=()=>{S.page=0;render()};$('rks').oninput=render;
+const topN=()=>Math.max(1,Math.min(500,+$('topn').value||10));
+$('rk-sel').onclick=()=>{const t=S.rkRows.slice(0,topN());t.forEach(r=>S.sel.add(r.v));toast(`Selected top ${t.length} by rank`);render()};
+$('rk-fav').onclick=()=>{const t=S.rkRows.slice(0,topN());t.forEach(r=>S.fav.add(r.v));saveFav();toast(`Shortlisted top ${t.length} by rank`);render()};
+
+/* ---- histogram (width-aware) ---- */
+const NICE=[0,50,100,150,200,300,400,500,750,1000,1500,2000,3000,5000,7500,10000,15000,25000,50000,100000];
+const STD=[0,100,200,300,500,1000,2000,5000,10000,25000,1e9];
+function makeBins(prices){
+ const mode=$('hbin').value;let edges;
+ const hi=prices.length?Math.max(...prices):0,lo=prices.length?Math.min(...prices):0;
+ if(mode==='std')edges=STD;
+ else if(mode==='log'){edges=NICE.filter(e=>e<=hi);edges.push(NICE.find(e=>e>hi)||hi+1)}
+ else{const n=+mode.slice(3);const a=Math.floor(lo),b=Math.ceil(hi)+1;const wd=Math.max(1,Math.ceil((b-a)/n));edges=[];for(let i=0;i<=n;i++)edges.push(a+i*wd);}
+ const bins=[];for(let i=0;i<edges.length-1;i++)bins.push({lo:edges[i],hi:edges[i+1]-1,n:0,v:0});
+ prices.forEach(p=>{const b=bins.find(b=>p>=b.lo&&p<=b.hi);if(b){b.n++;b.v+=p}});
+ return bins}
+let histRows=[],histMed=null;
+function drawHistNow(){drawHist(histRows,histMed)}
+function drawHist(rows,med){histRows=rows;histMed=med;
+ const prices=rows.map(price).filter(x=>x!=null);
+ const bins=makeBins(prices);S.bins=bins;
+ const key=$('hy').value,sc=$('hs').value,f=v=>sc==='sqrt'?Math.sqrt(v):v;
+ const cw=($('hsvg').parentNode&&$('hsvg').parentNode.clientWidth)||900;
+ const W=Math.max(300,Math.min(900,Math.round(cw))),H=W<520?250:300,small=W<520;
+ const L=small?40:52,R=8,T=14,B=small?52:58,pw=W-L-R,ph=H-T-B;
+ $('hsvg').setAttribute('viewBox',`0 0 ${W} ${H}`);
+ const mx=Math.max(1,...bins.map(b=>b[key])),fm=f(mx);
+ const bw=pw/Math.max(1,bins.length),every=bw>=30?1:bw>=18?2:3;
+ let g='';
+ const ticks=sc==='sqrt'?[0,0.25,0.5,0.75,1].map(t=>Math.round(t*t*mx)):[0,0.25,0.5,0.75,1].map(t=>Math.round(t*mx));
+ [...new Set(ticks)].forEach(t=>{const y=T+ph-f(t)/fm*ph;g+=`<line x1="${L}" x2="${W-R}" y1="${y}" y2="${y}"/><text x="${L-5}" y="${y+4}" text-anchor="end">${key==='v'?short(t):t}</text>`});
+ bins.forEach((b,i)=>{const h=f(b[key])/fm*ph,x=L+i*bw,y=T+ph-h;
+  const sel=S.band&&b.lo<=S.band[1]&&b.hi>=S.band[0];
+  const rng=b.hi>=1e8?`${gbp(b.lo)}+`:`${gbp(b.lo)}–${gbp(b.hi)}`;
+  g+=`<rect class="b${sel?' sel':''}" data-i="${i}" x="${x+1}" y="${b[key]?y:T+ph-1}" width="${Math.max(1,bw-2)}" height="${b[key]?h:1}" rx="2"><title>${rng}: ${b.n} plate${b.n==1?'':'s'}, total ${gbp(b.v)}</title></rect>`;
+  if(b[key]&&bw>=14)g+=`<text class="v" x="${x+bw/2}" y="${y-3}" text-anchor="middle">${key==='v'?short(b.v):b.n}</text>`;
+  const lbl=b.hi>=1e8?short(b.lo)+'+':short(b.lo);
+  if(i%every===0)g+=`<text x="${x+bw/2}" y="${T+ph+13}" text-anchor="end" transform="rotate(-40 ${x+bw/2} ${T+ph+13})">${lbl}</text>`});
+ if(med!=null){const i=bins.findIndex(b=>med>=b.lo&&med<=b.hi);if(i>=0){const b=bins[i],x=L+(i+(b.hi>=1e8?0.5:(med-b.lo)/(b.hi-b.lo+1)))*bw;g+=`<line class="med" x1="${x}" x2="${x}" y1="${T}" y2="${T+ph}"/><text x="${Math.min(x+4,W-95)}" y="${T+10}" style="fill:var(--red)">median ${gbp(med)}</text>`}}
+ $('hsvg').innerHTML=g||'<text x="20" y="40">No priced plates in the current results.</text>';
+ const tot=prices.length,sorted=[...prices].sort((a,b)=>a-b),q=p=>sorted.length?sorted[Math.min(sorted.length-1,Math.floor(p*sorted.length))]:null;
+ $('hinfo').textContent=tot?`${tot} priced plates in view · 25th percentile ${gbp(q(.25))} · median ${gbp(med)} · 75th percentile ${gbp(q(.75))} · 90th percentile ${gbp(q(.9))}${S.band?` · filtered to ${gbp(S.band[0])}–${gbp(S.band[1])}`:''}`:'';
+}
+let drag=null;
+const idxAt=e=>{const t=document.elementFromPoint(e.clientX,e.clientY);return t&&t.dataset&&t.dataset.i!=null?+t.dataset.i:null};
+$('hsvg').addEventListener('pointerdown',e=>{const i=idxAt(e);if(i!=null){drag={a:i,b:i};e.preventDefault()}});
+$('hsvg').addEventListener('pointermove',e=>{if(!drag)return;const i=idxAt(e);if(i==null)return;drag.b=i;
+ const lo=Math.min(drag.a,drag.b),hi=Math.max(drag.a,drag.b);
+ $('hsvg').querySelectorAll('.b').forEach(r=>{const k=+r.dataset.i;r.classList.toggle('drag',k>=lo&&k<=hi)})});
+window.addEventListener('pointerup',e=>{if(!drag)return;const lo=Math.min(drag.a,drag.b),hi=Math.max(drag.a,drag.b),d=drag;drag=null;
+ const bl=S.bins[lo],bh=S.bins[hi];if(!bl||!bh)return;
+ if(d.a===d.b){ if(S.band&&S.band[0]===bl.lo&&S.band[1]===bh.hi)S.band=null; else S.band=[bl.lo,bh.hi]; }
+ else{$('pmin').value=bl.lo;$('pmax').value=bh.hi>=1e8?'':bh.hi;S.band=null}
+ S.page=0;render()});
+window.addEventListener('pointercancel',()=>{drag=null});
+$('hclr').onclick=()=>{S.band=null;$('pmin').value='';$('pmax').value='';S.page=0;render()};
+let rzT=null,lastW=0;window.addEventListener('resize',()=>{clearTimeout(rzT);rzT=setTimeout(()=>{const w=$('hsvg').parentNode?$('hsvg').parentNode.clientWidth:0;if(w&&Math.abs(w-lastW)>8){lastW=w;drawHistNow()}},150)});
+
+/* ---- statistics ---- */
+function quant(a,p){if(!a.length)return null;const i=(a.length-1)*p,lo=Math.floor(i),hi=Math.ceil(i);return a[lo]+(a[hi]-a[lo])*(i-lo)}
+function sumStats(rows){
+ const pr=rows.map(price).filter(x=>x!=null).sort((a,b)=>a-b),n=pr.length,sum=pr.reduce((a,b)=>a+b,0),mean=n?sum/n:null;
+ const sd=n>1?Math.sqrt(pr.reduce((a,b)=>a+(b-mean)**2,0)/(n-1)):null;
+ const cnt={};pr.forEach(p=>cnt[p]=(cnt[p]||0)+1);const mc=Math.max(0,...Object.values(cnt));
+ const modes=mc>1?Object.keys(cnt).filter(k=>cnt[k]===mc).map(Number).sort((a,b)=>a-b):[];
+ return {rows:rows.length,priced:n,unpriced:rows.length-n,min:pr[0]??null,max:pr[n-1]??null,sum,mean,median:quant(pr,.5),sd,p10:quant(pr,.1),p25:quant(pr,.25),p75:quant(pr,.75),p90:quant(pr,.9),modes,mc,pr}}
+function statScope(){const v=$('ssc').value;return v==='sel'?D.filter(r=>S.sel.has(r.v)):v==='fav'?D.filter(r=>S.fav.has(r.v)):(window._view||[])}
+function costEst(rows){const pr=rows.filter(r=>r.p!=null),listed=pr.reduce((a,r)=>a+r.p,0),vat=pr.reduce((a,r)=>a+(incVat(r)-r.p),0),fee=80*pr.length;
+ return {n:pr.length,listed,vat,fee,total:listed+vat+fee}}
+function statsRows(){const rows=statScope(),s=sumStats(rows),c=costEst(rows),sc=$('ssc').options[$('ssc').selectedIndex].text;
+ return [['Scope',sc],['Rows',s.rows],['Priced',s.priced],['Without price',s.unpriced],['Cheapest',gbp(s.min)],['10th percentile',gbp(s.p10)],['25th percentile',gbp(s.p25)],['Median',gbp(s.median)],['Mean',gbp(s.mean)],['75th percentile',gbp(s.p75)],['90th percentile',gbp(s.p90)],['Dearest',gbp(s.max)],['Interquartile range',s.p25==null?'—':gbp(s.p75-s.p25)],['Std deviation',gbp(s.sd)],['Most common price',s.modes.length?s.modes.map(gbp).join(', ')+' (×'+s.mc+')':'none repeated'],['Total (as shown)',gbp(s.sum)],
+  ['Est. listed total',gbp(c.listed)],['Est. VAT on Part 1 @20%',gbp(c.vat)],['Transfer fees (£80 each)',gbp(c.fee)],['Est. total incl. VAT & fees',gbp(c.total)]]}
+function groupTable(rows,keyf,el){const g={};rows.forEach(r=>{const k=keyf(r);(g[k]=g[k]||[]).push(r)});
+ let h='<thead><tr><th class="nos">Group</th><th class="r nos">Rows</th><th class="r nos">Min</th><th class="r nos">Median</th><th class="r nos">Max</th><th class="r nos">Total</th></tr></thead><tbody>';
+ Object.keys(g).sort().forEach(k=>{const s=sumStats(g[k]);h+=`<tr><td>${k}</td><td class="r">${s.rows}</td><td class="r">${gbp(s.min)}</td><td class="r">${gbp(s.median)}</td><td class="r">${gbp(s.max)}</td><td class="r">${gbp(s.sum)}</td></tr>`});
+ $(el).innerHTML=Object.keys(g).length?h+'</tbody>':'<tbody><tr><td>No rows in this scope.</td></tr></tbody>'}
+function renderStats(){const rows=statScope(),s=sumStats(rows),c=costEst(rows);
+ const k=[['Rows',s.rows],['Priced',s.priced],['Cheapest',gbp(s.min)],['25th percentile',gbp(s.p25)],['Median',gbp(s.median)],['Mean',gbp(s.mean)],['75th percentile',gbp(s.p75)],['90th percentile',gbp(s.p90)],['Dearest',gbp(s.max)],['Std deviation',gbp(s.sd)],['Total (as shown)',gbp(s.sum)],['Most common price',s.modes.length?s.modes.map(gbp).join(', '):'none repeated']];
+ $('stk').innerHTML=k.map(x=>`<div><b>${x[1]}</b><span>${x[0]}</span></div>`).join('');
+ groupTable(rows,r=>r.part+' ('+r.vat+')','stp');groupTable(rows,r=>r.t,'stf');
+ $('stc').innerHTML=`<b>Indicative buying cost</b> for ${c.n} priced plate${c.n==1?'':'s'}: listed ${gbp(c.listed)} + VAT on Part 1 at 20% ${gbp(c.vat)} + transfer fees ${gbp(c.fee)} = <b>${gbp(c.total)}</b>.<div class="hint">Assumes every Part 1 price is plus VAT and Part 2 has none, as the PDF header says “most prices” are plus VAT. Excludes the cost of physical plates and any other charges – confirm with the seller.</div>`}
+$('stcopy').onclick=()=>clip(statsRows().map(r=>r.join('\t')).join('\n'),'Statistics copied');
+$('ssc').oninput=renderStats;
+
+/* ---- comparison ---- */
+function cmpItems(){const src=$('cscope').value==='sel'?D.filter(r=>S.sel.has(r.v)):D.filter(r=>S.fav.has(r.v));
+ const its=dedupe(src).sort((a,b)=>a.n-b.n);
+ const main=D.filter(r=>r.src==='Main list'&&r.p!=null),stockP=main.map(r=>r.p).sort((a,b)=>a-b),med=quant(stockP,.5);
+ const costs=its.filter(r=>r.p!=null).map(r=>incVat(r)+80),minCost=costs.length?Math.min(...costs):null;
+ const lp=its.map(r=>r.p).filter(x=>x!=null).sort((a,b)=>a-b),c=S.ctx;
+ return its.map(r=>{const inc=incVat(r),cost=inc==null?null:inc+80;
+  return {r,p:r.p,inc,cost,diff:cost==null||minCost==null?null:cost-minCost,pct:cost==null||!minCost?null:(cost/minCost-1)*100,
+  vsMed:r.p==null?null:r.p/med,rkList:r.p==null?null:lowerB(lp,r.p)+1,rkStock:r.p==null?null:lowerB(stockP,r.p)+1,
+  ppc:r.p==null?null:r.p/r.len,sc:c?scoreOf(r,c):null,rk:c?rankOf(r,c):null,nq:nameQ(r),n:its.length,stockN:stockP.length}})}
+const f1=x=>x==null?'—':(Math.round(x*10)/10).toString();
+const CROWS=[
+ ['Listed price',i=>gbp(i.p),i=>i.p,'min'],
+ ['Price incl. VAT (Part 1)',i=>gbp(i.inc),i=>i.inc,'min'],
+ ['Est. cost incl. VAT + £80 fee',i=>gbp(i.cost),i=>i.cost,'min'],
+ ['More than cheapest (£)',i=>i.diff==null?'—':(i.diff?'+':'')+gbp(i.diff),i=>i.diff,'min'],
+ ['More than cheapest (%)',i=>i.pct==null?'—':(i.pct?'+':'')+f1(i.pct)+'%',i=>i.pct,'min'],
+ ['Price vs stock median',i=>i.vsMed==null?'—':f1(i.vsMed)+'×',i=>i.vsMed,'min'],
+ ['Price rank in this comparison',i=>i.rkList==null?'—':'#'+i.rkList+' of '+i.n,i=>i.rkList,'min'],
+ ['Price rank in whole stock',i=>i.rkStock==null?'—':'#'+i.rkStock+' of '+i.stockN,i=>i.rkStock,'min'],
+ ['Price per character',i=>i.ppc==null?'—':gbp(i.ppc),i=>i.ppc,'min'],
+ ['Characters',i=>i.r.len,i=>i.r.len,'min'],
+ ['Letters / digits',i=>nLetters(i.r)+' / '+nDigits(i.r),i=>null,null],
+ ['Format',i=>i.r.t,i=>null,null],
+ ['Part (VAT)',i=>i.r.part+' ('+i.r.vat+')',i=>null,null],
+ ['Reads as',i=>words(i.r).join(', ')||'—',i=>null,null],
+ ['Name-match quality',i=>$('nm').value.trim()?Math.round(i.nq*100)+'%':'—',i=>$('nm').value.trim()?i.nq:null,'max'],
+ ['Composite score (0–100)',i=>f1(i.sc),i=>i.sc,'max'],
+ ['Rank by current method',i=>i.rk==null?'—':'#'+i.rk,i=>i.rk,'min'],
+ ['Source',i=>i.r.src,i=>null,null]];
+function cmpMatrix(its){return CROWS.map(([l,t])=>[l,...its.map(i=>String(t(i)))])}
+function bestSets(its){return CROWS.map(([l,t,v,b])=>{if(!b)return new Set();const vals=its.map(v);const nums=vals.filter(x=>x!=null);if(nums.length<2)return new Set();const tgt=b==='min'?Math.min(...nums):Math.max(...nums);if(nums.every(x=>x===tgt))return new Set();return new Set(vals.map((x,i)=>x===tgt?i:-1).filter(i=>i>=0))})}
+function renderCompare(){const its=cmpItems(),el=$('cmp'),rm=$('cscope').value==='sel'?'Deselect':'Remove ★';
+ if(!its.length){el.innerHTML='<div class="hint">Nothing to compare yet. Star plates (★) or tick rows, then they appear here side by side.</div>';return}
+ const best=bestSets(its);let h='<table>';
+ const badge=i=>`<span class="plate">${i.r.v}</span>`,btn=i=>`<button class="sec" data-rm="${i.r.v}" style="width:auto;padding:2px 8px;min-height:0">${rm}</button>`;
+ if($('clay').value==='cols'){
+  h+=`<thead><tr><th class="rl">Attribute</th>${its.map(i=>`<th>${badge(i)}<div>${btn(i)}</div></th>`).join('')}</tr></thead><tbody>`;
+  CROWS.forEach(([l,t],ri)=>{h+=`<tr><th class="rl">${l}</th>${its.map((i,ci)=>`<td class="${best[ri].has(ci)?'best':''}">${t(i)}</td>`).join('')}</tr>`})}
+ else{
+  h+=`<thead><tr><th>Plate</th>${CROWS.map(r=>`<th>${r[0]}</th>`).join('')}<th></th></tr></thead><tbody>`;
+  its.forEach((i,ci)=>{h+=`<tr><td>${badge(i)}</td>${CROWS.map(([l,t],ri)=>`<td class="${best[ri].has(ci)?'best':''}">${t(i)}</td>`).join('')}<td>${btn(i)}</td></tr>`})}
+ el.innerHTML=h+'</tbody></table>';
+ el.querySelectorAll('button[data-rm]').forEach(b=>b.onclick=()=>{const v=b.dataset.rm;if($('cscope').value==='sel')S.sel.delete(v);else{S.fav.delete(v);saveFav()}render()})}
+$('ccopy').onclick=()=>{const its=cmpItems();if(!its.length)return toast('Nothing to compare');clip([['Attribute',...its.map(i=>i.r.v)],...cmpMatrix(its)].map(r=>r.join('\t')).join('\n'),`Copied comparison of ${its.length} plates`)};
+$('cscope').oninput=renderCompare;$('clay').oninput=renderCompare;
+
+/* ---- selection / shortlist ---- */
+function setSel(r,on){on?S.sel.add(r.v):S.sel.delete(r.v)}
+function selSync(){
+ const rows=S.pageRows,n=rows.filter(r=>S.sel.has(r.v)).length,box=$('selpg');
+ if(box){box.checked=rows.length>0&&n===rows.length;box.indeterminate=n>0&&n<rows.length}
+ const all=window._view||[],inView=new Set(all.filter(r=>S.sel.has(r.v)).map(r=>r.v)).size;
+ $('selinfo').textContent=`${S.sel.size} selected${S.sel.size?` (${inView} in current filter)`:''}`;
+ const fv=dedupe(D.filter(r=>S.fav.has(r.v))),pr=fv.map(incVat).filter(x=>x!=null).reduce((a,b)=>a+b,0);
+ $('slinfo').innerHTML=`★ Shortlist: <b>${S.fav.size}</b> plate${S.fav.size==1?'':'s'}${S.fav.size?` · ${gbp(pr)} incl. VAT on Part 1 (before £80 fees)`:''}`;
+ ['b-add','b-rem','b-clr','b-exp'].forEach(i=>$(i).disabled=!S.sel.size);
+ $('s-clr').disabled=!S.fav.size;$('s-view').disabled=!S.fav.size&&$('show').value!=='fav';$('s-addall').disabled=!all.length;
+ $('s-view').textContent=$('show').value==='fav'?'Show all again':'View shortlist only'}
+$('b-page').onclick=()=>{S.pageRows.forEach(r=>S.sel.add(r.v));render()};
+$('b-all').onclick=()=>{(window._view||[]).forEach(r=>S.sel.add(r.v));toast(`Selected ${(window._view||[]).length} filtered rows`);render()};
+$('b-inv').onclick=()=>{S.pageRows.forEach(r=>S.sel.has(r.v)?S.sel.delete(r.v):S.sel.add(r.v));render()};
+$('b-clr').onclick=()=>{S.sel.clear();S.last=null;if($('show').value==='sel')$('show').value='';render()};
+$('b-add').onclick=()=>{let n=0;S.sel.forEach(v=>{if(!S.fav.has(v)){S.fav.add(v);n++}});saveFav();toast(`Added ${n} to shortlist (${S.sel.size-n} already there)`);render()};
+$('b-rem').onclick=()=>{let n=0;S.sel.forEach(v=>{if(S.fav.delete(v))n++});saveFav();toast(`Removed ${n} from shortlist`);render()};
+$('b-exp').onclick=()=>{$('escope').value='sel';const c=$('escope').closest&&$('escope').closest('.fold');if(c)c.classList.remove('collapsed');render();$('escope').scrollIntoView&&$('escope').scrollIntoView({behavior:'smooth',block:'center'});toast('Export scope set to selected rows')};
+$('s-view').onclick=()=>{$('show').value=$('show').value==='fav'?'':'fav';S.page=0;render()};
+$('s-addall').onclick=()=>{const a=window._view||[];a.forEach(r=>S.fav.add(r.v));saveFav();toast(`Shortlisted ${a.length} filtered rows`);render()};
+$('s-clr').onclick=()=>{if(confirm(`Clear all ${S.fav.size} shortlisted plates?`)){S.fav.clear();saveFav();render()}};
+document.addEventListener('change',e=>{if(e.target&&e.target.id==='selpg'){S.pageRows.forEach(r=>setSel(r,e.target.checked));render()}});
+
+/* ---- export ---- */
+const stamp=()=>new Date().toISOString().slice(0,10);
+function exportRows(){
+ const sc=$('escope').value,all=window._view||[];
+ return sc==='page'?S.pageRows:sc==='fav'?all.filter(r=>S.fav.has(r.v)):sc==='sel'?all.filter(r=>S.sel.has(r.v)):all}
+function activeFilters(){
+ const o=[],add=(k,v)=>{if(v!==''&&v!=null)o.push([k,String(v)])};
+ add('Search',$('q').value);add('Regex',$('rx').value);add('Part',$('part').value);
+ if(S.types.size)add('Plate types',[...S.types].join(', '));
+ if(S.quick.size)add('Quick filters',QUICK.filter(x=>S.quick.has(x[0])).map(x=>x[1]).join(', '));
+ add('Characters',$('len').value);
+ add('First character',S.let);add('Min price £',$('pmin').value);add('Max price £',$('pmax').value);
+ if(S.band)add('Histogram bar',gbp(S.band[0])+' to '+gbp(S.band[1]));
+ add('Show',$('show').selectedIndex?$('show').options[$('show').selectedIndex].text:'');
+ if($('nm').value||$('nmode').value==='word'){add('Name(s)',$('nm').value);add('Name match mode',$('nmode').options[$('nmode').selectedIndex].text);add('Digits as letters',$('dg').value==='1'?'On':'Off');add('Plate boundary',$('bd').value==='1'?'Within letter group':'Anywhere')}
+ add('VAT treatment',$('vat').options[$('vat').selectedIndex].text);
+ add('Sort',SORTS.find(s=>s[0]===S.sorts[0].k)[1]+(S.sorts[0].d>0?' ascending':' descending')+' then '+SORTS.find(s=>s[0]===S.sorts[1].k)[1]);
+ add('Rank method',RK_LABEL[$('rkm').value]+' within '+($('rks').value==='all'?'whole list':'filtered rows'));
+ add('Export scope',$('escope').options[$('escope').selectedIndex].text);
+ return o}
+function header(){const b=['No.','VRN','Price (£)'];if($('eprice').value==='both'){b.splice(2,1,'Price listed (£)','Price incl. VAT where Part 1 (£)')}
+ return b.concat(['Part','VAT status','Format','Characters','Reads as','Source block','Shortlisted','Rank','Score'])}
+function line(r){const pr=$('eprice').value==='both'?[r.p,incVat(r)]:[price(r)];
+ return [r.n,r.v,...pr,r.part,r.vat,r.t,r.len,words(r).join(' '),r.src,S.fav.has(r.v)?'Yes':'',r._rk??'',r._sc??'']}
+function table(){const rows=exportRows();return {h:header(),b:rows.map(line),n:rows.length}}
+function fname(ext,n){return `vrn_filtered_${stamp()}_${n}-plates.${ext}`}
+function save(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);toast('Downloaded '+name)}
+const csvCell=v=>{if(v==null)return '';v=String(v);return /[",\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
+function doCSV(){const t=table();if(!t.n)return toast('Nothing to export');
+ let out=[];if($('emeta').value==='1'){out.push('# Source: westernreg.co.uk stock list, October 2026 (verified against PDF)');out.push('# Exported: '+new Date().toISOString());activeFilters().forEach(([k,v])=>out.push('# '+k+': '+v.replace(/\n/g,' ')))}
+ out.push(t.h.map(csvCell).join(','));t.b.forEach(r=>out.push(r.map(csvCell).join(',')));
+ save(new Blob(['\ufeff'+out.join('\r\n')],{type:'text/csv;charset=utf-8'}),fname('csv',t.n))}
+function doJSON(){const t=table();if(!t.n)return toast('Nothing to export');
+ const ex=exportRows(),rows=ex.map(r=>({no:r.n,vrn:r.v,price_gbp:price(r),price_listed_gbp:r.p,price_incl_vat_gbp:incVat(r),part:r.part,vat_status:r.vat,format:r.t,characters:r.len,reads_as:words(r),source_block:r.src,shortlisted:S.fav.has(r.v),rank:r._rk,score:r._sc}));
+ const o={source:'westernreg.co.uk stock list, October 2026',exported:new Date().toISOString(),count:rows.length};
+ if($('emeta').value==='1'){o.filters=Object.fromEntries(activeFilters());const s=sumStats(ex),c=costEst(ex);o.statistics={priced:s.priced,min:s.min,p25:s.p25,median:s.median,mean:s.mean,p75:s.p75,max:s.max,total:s.sum,indicative_cost:c}}
+ o.rows=rows;
+ save(new Blob([JSON.stringify(o,null,2)],{type:'application/json'}),fname('json',rows.length))}
+async function clip(text,msg){try{await navigator.clipboard.writeText(text)}catch(e){const ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy')}catch(_){}ta.remove()}toast(msg)}
+function doTSV(){const t=table();if(!t.n)return toast('Nothing to export');clip([t.h,...t.b].map(r=>r.map(v=>v==null?'':String(v).replace(/[\t\r\n]+/g,' ')).join('\t')).join('\n'),`Copied ${t.n} rows – paste into Excel or Sheets`)}
+function doMD(){const t=table();if(!t.n)return toast('Nothing to export');const e=v=>(v==null?'':String(v)).replace(/\|/g,'\\|');
+ clip(['| '+t.h.join(' | ')+' |','|'+t.h.map(()=>'---').join('|')+'|',...t.b.map(r=>'| '+r.map(e).join(' | ')+' |')].join('\n'),`Copied ${t.n} rows as Markdown`)}
+function doPrint(){const t=table();if(!t.n)return toast('Nothing to print');const e=v=>(v==null?'':String(v)).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+ $('print').innerHTML=`<h2>VRN stock – results (${t.n})</h2><div class="meta">westernreg.co.uk, October 2026 · exported ${new Date().toLocaleString('en-GB')}${$('emeta').value==='1'?'<br>'+activeFilters().map(([k,v])=>e(k)+': '+e(v)).join(' · '):''}<br>Prices exclude the £80 transfer fee and plates; most are plus VAT.</div><table><thead><tr>${t.h.map(h=>`<th>${e(h)}</th>`).join('')}</tr></thead><tbody>${t.b.map(r=>`<tr>${r.map(c=>`<td>${e(c)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+ window.print()}
+const CRC=(()=>{const t=[];for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return b=>{let c=0xFFFFFFFF;for(let i=0;i<b.length;i++)c=t[(c^b[i])&255]^(c>>>8);return (c^0xFFFFFFFF)>>>0}})();
+function zip(files){const enc=new TextEncoder(),parts=[],cd=[];let off=0;
+ const u16=v=>[v&255,v>>8&255],u32=v=>[v&255,v>>8&255,v>>16&255,v>>>24&255];
+ for(const [name,txt] of files){const nb=enc.encode(name),data=enc.encode(txt),crc=CRC(data);
+  const lh=new Uint8Array([0x50,0x4b,3,4,...u16(20),...u16(0x0800),...u16(0),...u16(0),...u16(0x21),...u32(crc),...u32(data.length),...u32(data.length),...u16(nb.length),...u16(0)]);
+  parts.push(lh,nb,data);
+  cd.push(new Uint8Array([0x50,0x4b,1,2,...u16(20),...u16(20),...u16(0x0800),...u16(0),...u16(0),...u16(0x21),...u32(crc),...u32(data.length),...u32(data.length),...u16(nb.length),...u16(0),...u16(0),...u16(0),...u16(0),...u32(0),...u32(off)]),nb);
+  off+=lh.length+nb.length+data.length}
+ const cdLen=cd.reduce((a,b)=>a+b.length,0);
+ const end=new Uint8Array([0x50,0x4b,5,6,...u16(0),...u16(0),...u16(files.length),...u16(files.length),...u32(cdLen),...u32(off),...u16(0)]);
+ return new Blob([...parts,...cd,end],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})}
+const xe=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/[\x00-\x08\x0b\x0c\x0e-\x1f]/g,'');
+const colL=i=>{let s='';i++;while(i>0){const m=(i-1)%26;s=String.fromCharCode(65+m)+s;i=(i-m-1)/26|0}return s};
+function sheet(rows,priceCols,widths,filter){let x='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols>'+widths.map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1"/>`).join('')+'</cols><sheetData>';
+ rows.forEach((r,ri)=>{x+=`<row r="${ri+1}">`;r.forEach((v,ci)=>{const ref=colL(ci)+(ri+1);
+  if(v==null||v==='')return;
+  if(ri===0)x+=`<c r="${ref}" t="inlineStr" s="1"><is><t>${xe(v)}</t></is></c>`;
+  else if(typeof v==='number')x+=`<c r="${ref}"${priceCols.includes(ci)?' s="2"':''}><v>${v}</v></c>`;
+  else x+=`<c r="${ref}" t="inlineStr"><is><t xml:space="preserve">${xe(v)}</t></is></c>`});x+='</row>'});
+ return x+`</sheetData>${filter?`<autoFilter ref="A1:${colL(rows[0].length-1)}${rows.length}"/>`:''}</worksheet>`}
+function doXLSX(){const t=table();if(!t.n)return toast('Nothing to export');
+ const pc=$('eprice').value==='both'?[2,3]:[2],ex=exportRows();
+ const s1=sheet([t.h,...t.b],pc,t.h.map((h,i)=>i===1?14:i===0?6:i>=pc[0]&&i<=pc[pc.length-1]?18:i===8?20:i===9?24:12),true);
+ const meta=[['Filter','Value'],['Source','westernreg.co.uk stock list, October 2026 (verified against PDF)'],['Exported',new Date().toISOString()],['Rows',t.n],...activeFilters(),['Note','Prices exclude the £80 transfer fee and plates; most are plus VAT.']];
+ const st=(()=>{const s=sumStats(ex),c=costEst(ex);return [['Statistic','Value'],['Rows exported',t.n],['Priced',s.priced],['Cheapest',s.min],['25th percentile',s.p25],['Median',s.median],['Mean',s.mean==null?null:Math.round(s.mean)],['75th percentile',s.p75],['Dearest',s.max],['Total (as shown)',s.sum],['Est. VAT on Part 1 @20%',c.vat],['Transfer fees (£80 each)',c.fee],['Est. total incl. VAT & fees',c.total]]})();
+ const withMeta=$('emeta').value==='1';
+ const sheets=withMeta?[['VRNs',s1],['Filters',sheet(meta,[],[24,70],false)],['Statistics',sheet(st,[1],[30,16],false)]]:[['VRNs',s1]];
+ const files=[
+ ['[Content_Types].xml','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'+sheets.map((s,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('')+'</Types>'],
+ ['_rels/.rels','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>'],
+ ['xl/workbook.xml','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>'+sheets.map((s,i)=>`<sheet name="${s[0]}" sheetId="${i+1}" r:id="rId${i+1}"/>`).join('')+'</sheets></workbook>'],
+ ['xl/_rels/workbook.xml.rels','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+sheets.map((s,i)=>`<Relationship Id="rId${i+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i+1}.xml"/>`).join('')+`<Relationship Id="rId${sheets.length+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`],
+ ['xl/styles.xml','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="1"><numFmt numFmtId="164" formatCode="&quot;£&quot;#,##0"/></numFmts><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="3"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>'],
+ ...sheets.map((s,i)=>[`xl/worksheets/sheet${i+1}.xml`,s[1]])];
+ save(zip(files),fname('xlsx',t.n))}
+$('x-csv').onclick=doCSV;$('x-xlsx').onclick=doXLSX;$('x-json').onclick=doJSON;$('x-copy').onclick=doTSV;$('x-md').onclick=doMD;$('x-print').onclick=doPrint;
+
+/* ---- pagination ---- */
+const pageSize=()=>$('ps').value==='All'?1e9:+$('ps').value;
+function navHTML(page,pages,total,ps){
+ const from=total?page*ps+1:0,to=Math.min(total,(page+1)*ps);
+ const set=new Set([0,pages-1,page-2,page-1,page,page+1,page+2].filter(p=>p>=0&&p<pages));let last=-1,nums='';
+ [...set].sort((a,b)=>a-b).forEach(p=>{if(last>=0&&p-last>1)nums+='<span class="dots">…</span>';nums+=`<button class="sec num ${p===page?'cur':''}" data-p="${p}" ${p===page?'aria-current="page"':''}>${p+1}</button>`;last=p});
+ return `<span class="info">${total?`Showing ${from.toLocaleString('en-GB')}–${to.toLocaleString('en-GB')} of ${total.toLocaleString('en-GB')}${pages>1?` · page ${page+1} of ${pages}`:''}`:'No rows match'}</span>`
+  +`<button class="sec" data-p="0" ${page===0?'disabled':''} title="First page">«<span class="lg"> First</span></button><button class="sec" data-p="${page-1}" ${page===0?'disabled':''} title="Previous page">‹ Prev</button>`
+  +nums+`<button class="sec" data-p="${page+1}" ${page>=pages-1?'disabled':''} title="Next page">Next ›</button><button class="sec" data-p="${pages-1}" ${page>=pages-1?'disabled':''} title="Last page"><span class="lg">Last </span>»</button>`}
+function goPage(p){S.page=Math.max(0,Math.min(S.pages-1,p|0));render();const sc=document.querySelector('.scroll');if(sc)sc.scrollTop=0}
+function bindPager(el){el.querySelectorAll('button[data-p]').forEach(b=>b.onclick=()=>{if(!b.disabled)goPage(+b.dataset.p)})}
+$('gobtn').onclick=()=>goPage((+$('gopg').value||1)-1);
+$('gopg').onkeydown=e=>{if(e.key==='Enter')$('gobtn').onclick()};
+document.addEventListener('keydown',e=>{const t=(document.activeElement&&document.activeElement.tagName)||'';if(/INPUT|SELECT|TEXTAREA|BUTTON/.test(t)||e.altKey||e.ctrlKey||e.metaKey)return;
+ if(e.key==='ArrowRight'&&S.page<S.pages-1)goPage(S.page+1);else if(e.key==='ArrowLeft'&&S.page>0)goPage(S.page-1)});
+
+/* ---- saved views ---- */
+const STATE_IDS=['q','rx','part','pmin','pmax','len','vat','show','nm','nmode','dg','bd','hbin','hy','hs','ssc','cscope','clay','escope','eprice','emeta','rkm','rks','topn','w1','w2','w3','w4','w5','wf','ps'];
+const VKEY='vrnviews',loadViews=()=>{const v=jparse(ls.get(VKEY),{});return (v&&typeof v==='object'&&!Array.isArray(v))?v:{}},storeViews=v=>ls.set(VKEY,JSON.stringify(v));
+function getState(){const st={v:2,ids:{}};STATE_IDS.forEach(i=>st.ids[i]=$(i).value);
+ st.types=[...S.types];st.quick=[...S.quick];st.let=S.let;st.band=S.band;st.sorts=S.sorts;st.page=S.page;st.sel=[...S.sel];return st}
+function setState(st){if(!st||typeof st!=='object'||!st.ids)return false;
+ STATE_IDS.forEach(i=>{if(st.ids[i]!=null&&$(i))$(i).value=st.ids[i]});
+ [1,2,3,4,5].forEach(i=>{$('wv'+i).textContent=$('w'+i).value});
+ S.types=new Set((st.types||[]).filter(t=>TYPES.includes(t)));S.quick=new Set((st.quick||[]).filter(q=>QUICK.some(x=>x[0]===q)));
+ S.let=typeof st.let==='string'?st.let:'';S.band=Array.isArray(st.band)&&st.band.length===2?st.band.map(Number):null;
+ if(Array.isArray(st.sorts)&&st.sorts.length>=2&&SORTS.some(s=>s[0]===st.sorts[0].k)&&SORTS.some(s=>s[0]===st.sorts[1].k))S.sorts=[{k:st.sorts[0].k,d:+st.sorts[0].d<0?-1:1},{k:st.sorts[1].k,d:+st.sorts[1].d<0?-1:1}];
+ S.sel=new Set((st.sel||[]).filter(x=>typeof x==='string'));S.page=Math.max(0,+st.page||0);S.last=null;syncSortUI();render();return true}
+function viewSummary(){const f=activeFilters().filter(([k])=>!['Export scope','Sort','Rank method','VAT treatment'].includes(k));return f.length?f.map(([k,v])=>k+': '+v).join(' · '):'No filters active'}
+function refreshViewList(selName){const v=loadViews(),sel=$('vlist');sel.innerHTML='';
+ const names=Object.keys(v).sort((a,b)=>String(v[b].saved||'').localeCompare(String(v[a].saved||'')));
+ if(!names.length)sel.add(new Option('— none saved —',''));
+ names.forEach(n=>sel.add(new Option(`${n}  (${String(v[n].saved||'').slice(0,10)})`,n)));
+ if(selName&&v[selName])sel.value=selName;
+ $('v-load').disabled=$('v-del').disabled=!names.length}
+$('v-save').onclick=()=>{const name=$('vname').value.trim();if(!name)return toast('Give the view a name first');
+ const v=loadViews();if(v[name]&&!confirm(`Overwrite the saved view “${name}”?`))return;
+ v[name]={saved:new Date().toISOString(),state:getState()};storeViews(v);refreshViewList(name);toast(`Saved view “${name}”`)};
+$('v-load').onclick=()=>{const n=$('vlist').value,v=loadViews();if(!n||!v[n])return toast('Choose a saved view');$('vname').value=n;setState(v[n].state);toast(`Loaded “${n}”`)};
+$('v-del').onclick=()=>{const n=$('vlist').value,v=loadViews();if(!n||!v[n])return;if(!confirm(`Delete the saved view “${n}”?`))return;delete v[n];storeViews(v);refreshViewList();toast(`Deleted “${n}”`)};
+$('vlist').oninput=()=>{const n=$('vlist').value;if(n)$('vname').value=n};
+const b64=s=>btoa(unescape(encodeURIComponent(s))),unb64=s=>decodeURIComponent(escape(atob(s)));
+$('v-link').onclick=()=>{const st=getState();st.sel=[];const base=(location.href||'').split('#')[0];clip(base+'#v='+b64(JSON.stringify(st)),'Link copied – opens this view (selection not included)')};
+$('v-exp').onclick=()=>{const v=loadViews();if(!Object.keys(v).length&&!confirm('No saved views yet. Export the current view only?'))return;
+ const out=Object.keys(v).length?v:{'Current view':{saved:new Date().toISOString(),state:getState()}};
+ save(new Blob([JSON.stringify({app:'vrn-explorer',version:2,views:out,shortlist:[...S.fav]},null,2)],{type:'application/json'}),`vrn_views_${stamp()}.json`)};
+$('v-imp').onclick=()=>$('v-file').click();
+$('v-file').onchange=e=>{const f=e.target.files&&e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{try{const o=JSON.parse(rd.result),inc=o.views||o,v=loadViews();let n=0;
+ Object.keys(inc).forEach(k=>{if(inc[k]&&inc[k].state&&inc[k].state.ids){v[k]=inc[k];n++}});storeViews(v);
+ if(Array.isArray(o.shortlist)&&o.shortlist.length&&confirm(`Also merge ${o.shortlist.length} shortlisted plates from the file?`)){o.shortlist.forEach(x=>{if(typeof x==='string')S.fav.add(x)});saveFav()}
+ refreshViewList();render();toast(`Imported ${n} view${n==1?'':'s'}`)}catch(err){toast('That file is not a valid views file')}};rd.readAsText(f);e.target.value=''};
+$('v-auto').checked=ls.get('vrnauto')==='1';
+$('v-auto').onchange=()=>{ls.set('vrnauto',$('v-auto').checked?'1':'0');autoSave();toast($('v-auto').checked?'Will reopen where you left off':'Auto-restore off')};
+function autoSave(){if($('v-auto').checked){ls.set('vrnlast',JSON.stringify(getState()))}}
+
+/* ---- mobile helpers ---- */
+document.querySelectorAll('.fold>h3').forEach(h=>{h.setAttribute('role','button');h.tabIndex=0;const tg=()=>{if(isMobile())h.parentNode.classList.toggle('collapsed')};h.onclick=tg;h.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();tg()}}});
+if(isMobile())document.querySelectorAll('.fold').forEach(c=>c.classList.add('collapsed'));
+$('totop').onclick=()=>{window.scrollTo&&window.scrollTo({top:0,behavior:'smooth'})};
+
+function bars(el,items,max,act,cb){$(el).innerHTML=items.map(([l,c,k])=>`<div class="bar ${act(k)?'on':''}" data-k="${k}"><span class="l">${l}</span><i style="width:${Math.max(2,c/max*60)}%"></i><span>${c}</span></div>`).join('');
+ $(el).querySelectorAll('.bar').forEach(b=>b.onclick=()=>cb(b.dataset.k))}
+function median(a){return a.length?(a.length%2?a[(a.length-1)/2]:(a[a.length/2-1]+a[a.length/2])/2):null}
+function render(){
+ const all=filt(false,false,false,false),forHist=filt(true,false,false,false),forTypes=filt(false,true,false,false),forSpot=filt(false,false,true,false);
+ all.forEach(r=>{r._m=nameMatch(r)});
+ applyRanks(all);
+ const pr=all.map(price).filter(x=>x!=null).sort((a,b)=>a-b);
+ const sum=pr.reduce((a,b)=>a+b,0),med=median(pr);
+ $('kpis').innerHTML=[['Showing',all.length+' / '+D.length],['Priced',pr.length],['Cheapest',gbp(pr[0])],['Median',gbp(med)],['Mean',pr.length?gbp(sum/pr.length):'—'],['Dearest',gbp(pr[pr.length-1])],['Total value',gbp(sum)],['Selected',S.sel.size],['Shortlist',S.fav.size]].map(k=>`<div class="kpi"><b>${k[1]}</b><span>${k[0]}</span></div>`).join('');
+ renderPills(forTypes);
+ drawHist(forHist,median(forHist.map(price).filter(x=>x!=null).sort((a,b)=>a-b)));
+ const fc={};forTypes.forEach(r=>fc[r.t]=(fc[r.t]||0)+1);
+ bars('fmts',TYPES.map(t=>[t,fc[t]||0,t]),Math.max(1,...Object.values(fc)),k=>S.types.has(k),k=>{S.types.has(k)?S.types.delete(k):S.types.add(k);S.page=0;render()});
+ const lc={};all.forEach(r=>lc[r.v[0]]=(lc[r.v[0]]||0)+1);
+ const top=Object.entries(lc).sort((a,b)=>b[1]-a[1]).slice(0,8);
+ bars('lets',top.map(([l,c])=>[l,c,l]),top.length?top[0][1]:1,k=>S.let===k,k=>{S.let=S.let===k?'':k;S.page=0;render()});
+ const wc={};forSpot.forEach(r=>words(r).forEach(w=>wc[w]=(wc[w]||0)+1));
+ const sp=Object.entries(wc).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,60);
+ $('spot').innerHTML=sp.length?sp.map(([w,c])=>`<span class="chip" data-w="${w}">${w} · ${c}</span>`).join(''):'<span class="hint">None in the current results.</span>';
+ $('spot').querySelectorAll('.chip').forEach(e=>e.onclick=()=>{$('nm').value=e.dataset.w;if(['initc','inito'].includes($('nmode').value))$('nmode').value='contains';S.page=0;render()});
+ const [s1,s2]=S.sorts;
+ all.sort((a,b)=>cmpBy(a,b,s1.k,s1.d)||cmpBy(a,b,s2.k,s2.d)||a.n-b.n);
+ const ps=pageSize(),pages=Math.max(1,Math.ceil(all.length/ps));S.pages=pages;S.page=Math.min(S.page,pages-1);
+ const rows=all.slice(S.page*ps,(S.page+1)*ps);S.pageRows=rows;window._view=all;
+ renderHead();
+ $('tb').innerHTML=rows.map((r,i)=>`<tr class="${S.sel.has(r.v)?'sel':''}"><td class="c-sel"><input type="checkbox" class="rs" data-i="${i}" ${S.sel.has(r.v)?'checked':''} aria-label="Select ${r.v}"></td><td class="c-n">${r.n}</td><td class="c-plate"><span class="plate">${plateHTML(r)}</span>${r._m&&r._m.near?' <span class="tag">near match</span>':''}</td><td class="r c-price">${r.p==null?'<span class="tag">no price in banner</span>':gbp(price(r))}</td><td class="c-rank">${r._rk==null?'—':'#'+r._rk+' <span class="tag" title="Composite score">'+f1(r._sc)+'</span>'}</td><td class="c-meta" data-l="Part">${r.part}</td><td class="c-meta" data-l="Format">${r.t}${r.src!=='Main list'?' <span class="tag">New-stock banner</span>':''}</td><td class="c-words">${words(r).map(w=>`<span class="tag">${w}</span>`).join('')}</td><td class="r c-meta" data-l="Chars">${r.len}</td><td class="c-fav"><span class="fav ${S.fav.has(r.v)?'on':''}" data-v="${r.v}" role="button" tabindex="0" aria-pressed="${S.fav.has(r.v)}" aria-label="Toggle shortlist for ${r.v}">${S.fav.has(r.v)?'★':'☆'}</span></td></tr>`).join('')||`<tr><td colspan="10" class="hint c-empty">No plates match the current filters.</td></tr>`;
+ document.querySelectorAll('.fav').forEach(e=>{const tg=()=>{const v=e.dataset.v;S.fav.has(v)?S.fav.delete(v):S.fav.add(v);saveFav();render()};e.onclick=tg;e.onkeydown=ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();tg()}}});
+ document.querySelectorAll('.rs').forEach(e=>e.onclick=ev=>{const i=+e.dataset.i;
+  if(ev.shiftKey&&S.last!=null&&S.last<S.pageRows.length){const a=Math.min(S.last,i),b=Math.max(S.last,i);for(let j=a;j<=b;j++)setSel(S.pageRows[j],e.checked)}
+  else setSel(S.pageRows[i],e.checked);
+  S.last=i;render()});
+ const nav=navHTML(S.page,pages,all.length,ps);$('pgT').innerHTML=nav;$('pgB').innerHTML=nav;bindPager($('pgT'));bindPager($('pgB'));
+ $('gopg').value=S.page+1;$('gopg').max=pages;
+ const n=exportRows().length;$('xinfo').textContent=`${n} row${n==1?'':'s'} will be exported with the current filters and sort order.`;
+ ['x-csv','x-xlsx','x-json','x-copy','x-md','x-print'].forEach(i=>$(i).disabled=!n);
+ $('rk-sel').disabled=$('rk-fav').disabled=!S.rkRows.length;
+ selSync();renderStats();renderCompare();$('vinfo').textContent=`${Object.keys(loadViews()).length} saved view(s) in this browser. Current: ${viewSummary()}.`;autoSave();}
+['q','rx','part','pmin','pmax','len','vat','show','ps','nm','nmode','dg','bd','hbin','hy','hs','escope','eprice','emeta'].forEach(i=>$(i).oninput=()=>{S.page=0;if(i==='pmin'||i==='pmax')S.band=null;render()});
+document.querySelectorAll('.chip[data-n],.chip[data-i]').forEach(e=>e.onclick=()=>{
+ if(e.dataset.i){$('nm').value=e.dataset.i;$('nmode').value='initc'}else{$('nm').value=e.dataset.n;if(['initc','inito','word'].includes($('nmode').value))$('nmode').value='contains'}
+ S.page=0;render()});
+$('reset').onclick=()=>{['q','rx','part','pmin','pmax','len','show','nm'].forEach(i=>$(i).value='');$('vat').value='0';S.band=null;S.types.clear();S.quick.clear();S.let='';S.page=0;render()};
+syncSortUI();refreshViewList();
+(function boot(){let applied=false;
+ try{const h=(location.hash||'');if(h.startsWith('#v=')){applied=setState(JSON.parse(unb64(h.slice(3))))}}catch(e){}
+ if(!applied&&$('v-auto').checked){applied=setState(jparse(ls.get('vrnlast'),null))}
+ if(!applied)render()})();
+</script></body></html>
